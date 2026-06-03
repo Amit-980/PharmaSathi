@@ -12,6 +12,8 @@ public class Sale {
     private Long id;
 
     private Long medicineId;
+    private String customerName;
+    private String customerPhone;
     private Integer quantity;
     private Double sellingPrice;
     private LocalDate saleDate;
@@ -33,6 +35,22 @@ public class Sale {
 
     public void setMedicineId(Long medicineId) {
         this.medicineId = medicineId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     public Integer getQuantity() {

@@ -25,4 +25,22 @@ public class PurchaseController {
     public Purchase save(@RequestBody Purchase purchase) {
         return service.savePurchase(purchase);
     }
+
+    @GetMapping("/{id}")
+    public Purchase getById(@PathVariable Long id) {
+        return service.getPurchaseById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Purchase update(
+            @PathVariable Long id,
+            @RequestBody Purchase purchase) {
+
+        return service.updatePurchase(id, purchase);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.deletePurchase(id);
+    }
 }

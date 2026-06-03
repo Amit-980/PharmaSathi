@@ -26,6 +26,10 @@ public class SaleService {
         return saleRepository.findAll();
     }
 
+    public Sale getSaleById(Long id) {
+        return saleRepository.findById(id).orElse(null);
+    }
+
     public Sale saveSale(Sale sale) {
 
         Medicine medicine = medicineRepository
@@ -44,5 +48,26 @@ public class SaleService {
         medicineRepository.save(medicine);
 
         return saleRepository.save(sale);
+    }
+
+    public Sale updateSale(Long id, Sale sale) {
+        Sale existing = saleRepository.findById(id).orElse(null);
+
+        if (existing == null) {
+            return null;
+        }
+
+        existing.setMedicineId(sale.getMedicineId());
+        existing.setCustomerName(sale.getCustomerName());
+        existing.setCustomerPhone(sale.getCustomerPhone());
+        existing.setQuantity(sale.getQuantity());
+        existing.setSellingPrice(sale.getSellingPrice());
+        existing.setSaleDate(sale.getSaleDate());
+
+        return saleRepository.save(existing);
+    }
+
+    public void deleteSale(Long id) {
+        saleRepository.deleteById(id);
     }
 }

@@ -25,4 +25,22 @@ public class SaleController {
     public Sale save(@RequestBody Sale sale) {
         return service.saveSale(sale);
     }
+
+    @GetMapping("/{id}")
+    public Sale getById(@PathVariable Long id) {
+        return service.getSaleById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Sale update(
+            @PathVariable Long id,
+            @RequestBody Sale sale) {
+
+        return service.updateSale(id, sale);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.deleteSale(id);
+    }
 }

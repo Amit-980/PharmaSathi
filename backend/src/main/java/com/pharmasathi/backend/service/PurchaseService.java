@@ -26,6 +26,10 @@ public class PurchaseService {
         return purchaseRepository.findAll();
     }
 
+    public Purchase getPurchaseById(Long id) {
+        return purchaseRepository.findById(id).orElse(null);
+    }
+
     public Purchase savePurchase(Purchase purchase) {
 
         Medicine medicine = medicineRepository
@@ -43,5 +47,25 @@ public class PurchaseService {
         }
 
         return purchaseRepository.save(purchase);
+    }
+
+    public Purchase updatePurchase(Long id, Purchase purchase) {
+        Purchase existing = purchaseRepository.findById(id).orElse(null);
+
+        if (existing == null) {
+            return null;
+        }
+
+        existing.setMedicineId(purchase.getMedicineId());
+        existing.setSupplierId(purchase.getSupplierId());
+        existing.setQuantity(purchase.getQuantity());
+        existing.setPurchasePrice(purchase.getPurchasePrice());
+        existing.setPurchaseDate(purchase.getPurchaseDate());
+
+        return purchaseRepository.save(existing);
+    }
+
+    public void deletePurchase(Long id) {
+        purchaseRepository.deleteById(id);
     }
 }
