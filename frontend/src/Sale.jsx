@@ -52,23 +52,23 @@ function Sale() {
     };
   }, []);
 
-  const loadMedicines = async () => {
+  async function loadMedicines() {
     try {
       const response = await api.get("/medicines");
       setMedicines(response.data);
     } catch (error) {
       console.error("Error loading medicines:", error);
     }
-  };
+  }
 
-  const loadSales = async () => {
+  async function loadSales() {
     try {
       const response = await api.get("/sales");
       setSales(response.data);
     } catch (error) {
       console.error("Error loading sales:", error);
     }
-  };
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -120,16 +120,17 @@ function Sale() {
       const response = await api.post("/sales", salePayload);
       const savedSale = { ...salePayload, ...(response.data || {}) };
 
+      const fallbackId = sales.length + 1;
       setBill(
         createBill({
-          sale: { ...savedSale, id: savedSale.id || Date.now() },
+          sale: { ...savedSale, id: savedSale.id || fallbackId },
           medicine: selectedMedicine,
         })
       );
 
       setSuccessMessage("Sale recorded successfully! Bill ready hai.");
       setFormData(emptySaleForm);
-      setSales((prev) => [{ ...savedSale, id: savedSale.id || Date.now() }, ...prev]);
+      setSales((prev) => [{ ...savedSale, id: savedSale.id || fallbackId }, ...prev]);
       loadMedicines();
     } catch (error) {
       setErrorMessage(
@@ -148,7 +149,7 @@ function Sale() {
         await api.delete(`/sales/${id}`);
         setSuccessMessage("Sale deleted successfully!");
         loadSales();
-      } catch (error) {
+      } catch {
         setErrorMessage("Error deleting sale");
       }
     }
@@ -175,7 +176,7 @@ function Sale() {
     const sgstAmount = gstAmount / 2;
 
     return {
-      billNo: `PS-${String(sale.id || Date.now()).padStart(5, "0")}`,
+      billNo: `PS-${String(sale.id || "DRAFT").padStart(5, "0")}`,
       date: sale.saleDate,
       customerPhone: sale.customerPhone || customerPhone || "-",
       medicineName: medicine?.name || getMedicineName(sale.medicineId),
@@ -231,6 +232,17 @@ function Sale() {
   const customerSearch = searchQuery.trim();
   const searchedByPhone = /^[0-9]{4,10}$/.test(customerSearch);
   const latestFilteredSale = filteredSales[0];
+  const todayKey = new Date().toISOString().split("T")[0];
+  const todaySales = sales.filter((sale) => sale.saleDate === todayKey);
+  const todayRevenue = todaySales.reduce(
+    (sum, sale) =>
+      sum + Number(sale.quantity || 0) * Number(sale.sellingPrice || 0),
+    0
+  );
+  const todayUnits = todaySales.reduce(
+    (sum, sale) => sum + Number(sale.quantity || 0),
+    0
+  );
 
   return (
     <div className="sale-container module-page sale-page min-vh-100 py-5">
@@ -242,6 +254,12 @@ function Sale() {
           </h1>
           <p className="text-white-50 fs-5">Record medicine sales with real-time stock management</p>
           <span className="module-chip">{sales.length} sales</span>
+        </div>
+
+        <div className="module-insight-grid module-insight-grid-three">
+          <div><span>Today's Bills</span><strong>{todaySales.length}</strong></div>
+          <div><span>Today's Revenue</span><strong>₹{todayRevenue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></div>
+          <div><span>Units Sold Today</span><strong>{todayUnits}</strong></div>
         </div>
 
         {successMessage && (

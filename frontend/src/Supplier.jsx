@@ -18,7 +18,7 @@ function Supplier() {
     loadSuppliers();
   }, []);
 
-  const loadSuppliers = async () => {
+  async function loadSuppliers() {
     try {
       const response = await api.get("/suppliers");
       setSuppliers(response.data);
@@ -26,7 +26,7 @@ function Supplier() {
       console.error("Error loading suppliers:", error);
       setErrorMessage("Failed to load suppliers");
     }
-  };
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -95,11 +95,15 @@ function Supplier() {
         await api.delete(`/suppliers/${id}`);
         setSuccessMessage("Supplier deleted successfully!");
         loadSuppliers();
-      } catch (error) {
+      } catch {
         setErrorMessage("Error deleting supplier");
       }
     }
   };
+
+  const completeContacts = suppliers.filter(
+    (supplier) => supplier.phone && supplier.email && supplier.address
+  ).length;
 
   return (
     <div className="supplier-container module-page supplier-page py-5">
@@ -108,6 +112,14 @@ function Supplier() {
           <h1 className="display-5 fw-bold text-white mb-2">Manage Suppliers</h1>
           <p className="text-white-50">Add, edit, and manage your medicine suppliers</p>
           <span className="module-chip">{suppliers.length} suppliers</span>
+        </div>
+
+        <div className="module-insight-grid module-insight-grid-three">
+          <div><span>Active Suppliers</span><strong>{suppliers.length}</strong></div>
+          <div><span>Complete Profiles</span><strong>{completeContacts}</strong></div>
+          <div className={completeContacts < suppliers.length ? "warning" : ""}>
+            <span>Details Pending</span><strong>{suppliers.length - completeContacts}</strong>
+          </div>
         </div>
 
         {successMessage && (

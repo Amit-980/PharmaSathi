@@ -216,9 +216,9 @@ function App() {
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", mark: "D", note: "Daily overview" },
-    { id: "medicine", label: "Medicines", mark: "M", note: "Stock and expiry" },
+    { id: "medicine", label: "Medicine Master", mark: "M", note: "Catalog, batch and expiry" },
     { id: "supplier", label: "Suppliers", mark: "S", note: "Vendor contacts" },
-    { id: "purchase", label: "Purchase", mark: "P", note: "Restock entries" },
+    { id: "purchase", label: "Stock Purchase", mark: "P", note: "Supplier inward entries" },
     { id: "sale", label: "Billing", mark: "B", note: "Fast sale counter" },
     { id: "report", label: "Reports", mark: "R", note: "Audit and accounts" },
     { id: "plans", label: "Subscription", mark: "₹", note: "Plans and renewal" },

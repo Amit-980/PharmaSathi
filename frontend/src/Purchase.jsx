@@ -22,32 +22,32 @@ function Purchase() {
     loadPurchases();
   }, []);
 
-  const loadMedicines = async () => {
+  async function loadMedicines() {
     try {
       const response = await api.get("/medicines");
       setMedicines(response.data);
     } catch (error) {
       console.error("Error loading medicines:", error);
     }
-  };
+  }
 
-  const loadSuppliers = async () => {
+  async function loadSuppliers() {
     try {
       const response = await api.get("/suppliers");
       setSuppliers(response.data);
     } catch (error) {
       console.error("Error loading suppliers:", error);
     }
-  };
+  }
 
-  const loadPurchases = async () => {
+  async function loadPurchases() {
     try {
       const response = await api.get("/purchases");
       setPurchases(response.data);
     } catch (error) {
       console.error("Error loading purchases:", error);
     }
-  };
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,7 +96,7 @@ function Purchase() {
         await api.delete(`/purchases/${id}`);
         setSuccessMessage("Purchase deleted successfully!");
         loadPurchases();
-      } catch (error) {
+      } catch {
         setErrorMessage("Error deleting purchase");
       }
     }
@@ -112,16 +112,42 @@ function Purchase() {
     return supplier ? supplier.name : "Unknown";
   };
 
+  const totalPurchaseValue = purchases.reduce(
+    (sum, purchase) =>
+      sum + Number(purchase.quantity || 0) * Number(purchase.purchasePrice || 0),
+    0
+  );
+  const totalPurchasedUnits = purchases.reduce(
+    (sum, purchase) => sum + Number(purchase.quantity || 0),
+    0
+  );
+  const latestPurchaseDate = purchases
+    .map((purchase) => purchase.purchaseDate)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+
   return (
     <div className="purchase-container module-page purchase-page min-vh-100 py-5">
       <div className="container-fluid">
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-arrow-up-circle"></i> Purchase Inventory
+            <i className="bi bi-box-arrow-in-down"></i> Stock Purchase Entry
           </h1>
-          <p className="text-white-50 fs-5">Record medicine purchases and manage stock intake</p>
-          <span className="module-chip">{purchases.length} purchases</span>
+          <p className="text-white-50 fs-5">Record supplier invoices and add purchased quantity to existing medicine stock</p>
+          <span className="module-chip">{purchases.length} inward entries</span>
+        </div>
+
+        <div className="module-insight-grid module-insight-grid-three">
+          <div><span>Total Purchase Value</span><strong>₹{totalPurchaseValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></div>
+          <div><span>Stock Received</span><strong>{totalPurchasedUnits} units</strong></div>
+          <div><span>Latest Inward</span><strong>{latestPurchaseDate || "No purchase"}</strong></div>
+        </div>
+
+        <div className="module-purpose-note">
+          <i className="bi bi-box-seam"></i>
+          <div><strong>Step 2: Stock Purchase</strong><span>Medicine Master में बनी दवा चुनें, supplier invoice दर्ज करें और stock अपने-आप बढ़ाएं।</span></div>
         </div>
 
         {successMessage && (
@@ -155,7 +181,7 @@ function Purchase() {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  Add New Purchase
+                  Record Supplier Purchase
                 </h5>
               </div>
               <div className="card-body p-4">
@@ -254,7 +280,7 @@ function Purchase() {
                       disabled={loading}
                     >
                       <i className="bi bi-check-lg me-2"></i>
-                      {loading ? "Adding..." : "Record Purchase"}
+                      {loading ? "Adding Stock..." : "Add Stock Purchase"}
                     </button>
                   </div>
                 </form>
@@ -268,7 +294,7 @@ function Purchase() {
               <div className="card-header bg-light border-bottom p-4">
                 <h5 className="mb-0 fw-bold">
                   <i className="bi bi-history me-2 text-success"></i>
-                  Purchase History
+                  Stock Inward History
                 </h5>
                 <small className="text-muted">Total: {purchases.length} purchases</small>
               </div>

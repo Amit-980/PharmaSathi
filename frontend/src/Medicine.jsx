@@ -21,7 +21,7 @@ function Medicine() {
     loadMedicines();
   }, []);
 
-  const loadMedicines = async () => {
+  async function loadMedicines() {
     try {
       const response = await api.get("/medicines");
       setMedicines(response.data);
@@ -29,7 +29,7 @@ function Medicine() {
       console.error("Error loading medicines:", error);
       setErrorMessage("Failed to load medicines");
     }
-  };
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -116,11 +116,28 @@ function Medicine() {
         await api.delete(`/medicines/${id}`);
         setSuccessMessage("Medicine deleted successfully!");
         loadMedicines();
-      } catch (error) {
+      } catch {
         setErrorMessage("Error deleting medicine");
       }
     }
   };
+
+  const today = new Date();
+  const nearExpiryLimit = new Date(today);
+  nearExpiryLimit.setDate(today.getDate() + 90);
+  const lowStockCount = medicines.filter(
+    (medicine) => Number(medicine.stockQuantity || 0) <= 10
+  ).length;
+  const nearExpiryCount = medicines.filter((medicine) => {
+    if (!medicine.expiryDate) return false;
+    const expiry = new Date(medicine.expiryDate);
+    return expiry >= today && expiry <= nearExpiryLimit;
+  }).length;
+  const stockValue = medicines.reduce(
+    (sum, medicine) =>
+      sum + Number(medicine.mrp || 0) * Number(medicine.stockQuantity || 0),
+    0
+  );
 
   return (
     <div className="medicine-container module-page medicine-page min-vh-100 py-5">
@@ -128,10 +145,22 @@ function Medicine() {
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-pill"></i> Medicine Management
+            <i className="bi bi-capsule"></i> Medicine Master
           </h1>
-          <p className="text-white-50 fs-5">Add, update, and manage your medicine inventory</p>
-          <span className="module-chip">{medicines.length} medicines</span>
+          <p className="text-white-50 fs-5">Create medicine records with batch, expiry, MRP, GST and opening stock</p>
+          <span className="module-chip">{medicines.length} master records</span>
+        </div>
+
+        <div className="module-insight-grid">
+          <div><span>Total Stock</span><strong>{medicines.reduce((sum, item) => sum + Number(item.stockQuantity || 0), 0)} units</strong></div>
+          <div className={lowStockCount ? "warning" : ""}><span>Low Stock</span><strong>{lowStockCount} medicines</strong></div>
+          <div className={nearExpiryCount ? "danger" : ""}><span>Near Expiry (90 days)</span><strong>{nearExpiryCount} batches</strong></div>
+          <div><span>MRP Stock Value</span><strong>₹{stockValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></div>
+        </div>
+
+        <div className="module-purpose-note">
+          <i className="bi bi-info-circle"></i>
+          <div><strong>Step 1: Medicine Master</strong><span>नई दवा पहली बार यहीं बनाएं। बाद की supplier खरीद Stock Purchase में दर्ज करें।</span></div>
         </div>
 
         {successMessage && (
@@ -165,7 +194,7 @@ function Medicine() {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  {editingId ? "Edit Medicine" : "Add New Medicine"}
+                  {editingId ? "Edit Medicine Master" : "Create Medicine Master"}
                 </h5>
               </div>
               <div className="card-body p-4">
@@ -284,7 +313,7 @@ function Medicine() {
                         ? "Saving..."
                         : editingId
                         ? "Update Medicine"
-                        : "Add Medicine"}
+                        : "Create Medicine"}
                     </button>
                     {editingId && (
                       <button
