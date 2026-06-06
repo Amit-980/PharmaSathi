@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
 
 function Purchase() {
   const [medicines, setMedicines] = useState([]);
@@ -24,7 +24,7 @@ function Purchase() {
 
   const loadMedicines = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/medicines");
+      const response = await api.get("/medicines");
       setMedicines(response.data);
     } catch (error) {
       console.error("Error loading medicines:", error);
@@ -33,7 +33,7 @@ function Purchase() {
 
   const loadSuppliers = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/suppliers");
+      const response = await api.get("/suppliers");
       setSuppliers(response.data);
     } catch (error) {
       console.error("Error loading suppliers:", error);
@@ -42,7 +42,7 @@ function Purchase() {
 
   const loadPurchases = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/purchases");
+      const response = await api.get("/purchases");
       setPurchases(response.data);
     } catch (error) {
       console.error("Error loading purchases:", error);
@@ -64,7 +64,7 @@ function Purchase() {
     setErrorMessage("");
 
     try {
-      await axios.post("http://localhost:8080/api/purchases", {
+      await api.post("/purchases", {
         medicineId: parseInt(formData.medicineId),
         supplierId: parseInt(formData.supplierId),
         quantity: parseInt(formData.quantity),
@@ -93,7 +93,7 @@ function Purchase() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this purchase?")) {
       try {
-        await axios.delete(`http://localhost:8080/api/purchases/${id}`);
+        await api.delete(`/purchases/${id}`);
         setSuccessMessage("Purchase deleted successfully!");
         loadPurchases();
       } catch (error) {

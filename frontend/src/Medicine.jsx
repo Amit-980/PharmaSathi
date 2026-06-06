@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
 
 function Medicine() {
   const [medicines, setMedicines] = useState([]);
@@ -23,7 +23,7 @@ function Medicine() {
 
   const loadMedicines = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/medicines");
+      const response = await api.get("/medicines");
       setMedicines(response.data);
     } catch (error) {
       console.error("Error loading medicines:", error);
@@ -57,14 +57,11 @@ function Medicine() {
       };
 
       if (editingId) {
-        await axios.put(
-          `http://localhost:8080/api/medicines/${editingId}`,
-          data
-        );
+        await api.put(`/medicines/${editingId}`, data);
         setSuccessMessage("Medicine updated successfully!");
         setEditingId(null);
       } else {
-        await axios.post("http://localhost:8080/api/medicines", data);
+        await api.post("/medicines", data);
         setSuccessMessage("Medicine added successfully!");
       }
 
@@ -116,7 +113,7 @@ function Medicine() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this medicine?")) {
       try {
-        await axios.delete(`http://localhost:8080/api/medicines/${id}`);
+        await api.delete(`/medicines/${id}`);
         setSuccessMessage("Medicine deleted successfully!");
         loadMedicines();
       } catch (error) {

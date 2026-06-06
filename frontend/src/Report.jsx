@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "./api";
 
-const apiBaseUrl = "http://localhost:8080/api";
 
 const csvCell = (value) => {
   const text = value == null ? "" : String(value);
@@ -77,10 +76,10 @@ function Report() {
 
   useEffect(() => {
     Promise.all([
-        axios.get(`${apiBaseUrl}/medicines`),
-        axios.get(`${apiBaseUrl}/suppliers`),
-        axios.get(`${apiBaseUrl}/purchases`),
-        axios.get(`${apiBaseUrl}/sales`),
+        api.get("/medicines"),
+        api.get("/suppliers"),
+        api.get("/purchases"),
+        api.get("/sales"),
       ])
       .then(([medicineRes, supplierRes, purchaseRes, saleRes]) => {
         setRecords({

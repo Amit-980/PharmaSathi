@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "./api";
 
 function Supplier() {
   const [suppliers, setSuppliers] = useState([]);
@@ -20,7 +20,7 @@ function Supplier() {
 
   const loadSuppliers = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/suppliers");
+      const response = await api.get("/suppliers");
       setSuppliers(response.data);
     } catch (error) {
       console.error("Error loading suppliers:", error);
@@ -44,14 +44,11 @@ function Supplier() {
 
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:8080/api/suppliers/${editingId}`,
-          formData
-        );
+        await api.put(`/suppliers/${editingId}`, formData);
         setSuccessMessage("Supplier updated successfully!");
         setEditingId(null);
       } else {
-        await axios.post("http://localhost:8080/api/suppliers", formData);
+        await api.post("/suppliers", formData);
         setSuccessMessage("Supplier added successfully!");
       }
 
@@ -95,7 +92,7 @@ function Supplier() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this supplier?")) {
       try {
-        await axios.delete(`http://localhost:8080/api/suppliers/${id}`);
+        await api.delete(`/suppliers/${id}`);
         setSuccessMessage("Supplier deleted successfully!");
         loadSuppliers();
       } catch (error) {

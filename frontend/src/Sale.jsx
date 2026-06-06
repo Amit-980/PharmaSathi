@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import axios from "axios";
+import api from "./api";
 
 const emptySaleForm = {
   customerPhone: "",
@@ -54,7 +54,7 @@ function Sale() {
 
   const loadMedicines = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/medicines");
+      const response = await api.get("/medicines");
       setMedicines(response.data);
     } catch (error) {
       console.error("Error loading medicines:", error);
@@ -63,7 +63,7 @@ function Sale() {
 
   const loadSales = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/sales");
+      const response = await api.get("/sales");
       setSales(response.data);
     } catch (error) {
       console.error("Error loading sales:", error);
@@ -117,7 +117,7 @@ function Sale() {
         saleDate: formData.saleDate,
       };
 
-      const response = await axios.post("http://localhost:8080/api/sales", salePayload);
+      const response = await api.post("/sales", salePayload);
       const savedSale = { ...salePayload, ...(response.data || {}) };
 
       setBill(
@@ -145,7 +145,7 @@ function Sale() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this sale?")) {
       try {
-        await axios.delete(`http://localhost:8080/api/sales/${id}`);
+        await api.delete(`/sales/${id}`);
         setSuccessMessage("Sale deleted successfully!");
         loadSales();
       } catch (error) {

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "./api";
 
-const apiBaseUrl = "http://localhost:8080/api";
 
 function Dashboard() {
   const [dashboard, setDashboard] = useState({
@@ -26,10 +25,10 @@ function Dashboard() {
 
     try {
       const [dashRes, medRes, purRes, salRes] = await Promise.all([
-        axios.get(`${apiBaseUrl}/dashboard`),
-        axios.get(`${apiBaseUrl}/medicines`),
-        axios.get(`${apiBaseUrl}/purchases`),
-        axios.get(`${apiBaseUrl}/sales`),
+        api.get("/dashboard"),
+        api.get("/medicines"),
+        api.get("/purchases"),
+        api.get("/sales"),
       ]);
 
       setDashboard(dashRes.data);
