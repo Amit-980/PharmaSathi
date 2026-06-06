@@ -5,6 +5,10 @@ public record RegisterShopRequest(
         String ownerName,
         String phone,
         String email,
+        String address,
+        String gstin,
+        String drugLicense,
+        String plan,
         String username,
         String password
 ) {

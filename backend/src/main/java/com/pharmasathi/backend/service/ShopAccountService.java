@@ -29,7 +29,8 @@ public class ShopAccountService {
                 .<Map<String, Object>>map(account -> Map.of(
                         "registered", true,
                         "shopName", account.getShopName(),
-                        "ownerName", account.getOwnerName()
+                        "ownerName", account.getOwnerName(),
+                        "plan", planOrDefault(account)
                 ))
                 .orElseGet(() -> Map.of("registered", false));
     }
@@ -49,6 +50,10 @@ public class ShopAccountService {
         account.setOwnerName(request.ownerName().trim());
         account.setPhone(request.phone().trim());
         account.setEmail(request.email() == null ? "" : request.email().trim());
+        account.setAddress(request.address() == null ? "" : request.address().trim());
+        account.setGstin(request.gstin() == null ? "" : request.gstin().trim().toUpperCase());
+        account.setDrugLicense(request.drugLicense() == null ? "" : request.drugLicense().trim());
+        account.setSubscriptionPlan(request.plan().trim());
         account.setUsername(request.username().trim().toLowerCase());
         account.setPasswordSalt(salt);
         account.setPasswordHash(hash(request.password(), salt));
@@ -69,14 +74,22 @@ public class ShopAccountService {
         return Map.of(
                 "authenticated", true,
                 "shopName", account.getShopName(),
-                "ownerName", account.getOwnerName()
+                "ownerName", account.getOwnerName(),
+                "plan", planOrDefault(account)
         );
+    }
+
+    private String planOrDefault(ShopAccount account) {
+        return account.getSubscriptionPlan() == null || account.getSubscriptionPlan().isBlank()
+                ? "Business"
+                : account.getSubscriptionPlan();
     }
 
     private void validate(RegisterShopRequest request) {
         if (request.shopName() == null || request.shopName().isBlank()
                 || request.ownerName() == null || request.ownerName().isBlank()
                 || request.phone() == null || !request.phone().matches("\\d{10}")
+                || request.plan() == null || !request.plan().matches("Starter|Business|Pro")
                 || request.username() == null || request.username().trim().length() < 4
                 || request.password() == null || request.password().length() < 6) {
             throw new IllegalArgumentException("Please enter valid registration details");

@@ -22,6 +22,12 @@ public class ShopAccount {
 
     private String email;
 
+    private String address;
+    private String gstin;
+    private String drugLicense;
+
+    private String subscriptionPlan;
+
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -72,6 +78,38 @@ public class ShopAccount {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getGstin() {
+        return gstin;
+    }
+
+    public void setGstin(String gstin) {
+        this.gstin = gstin;
+    }
+
+    public String getDrugLicense() {
+        return drugLicense;
+    }
+
+    public void setDrugLicense(String drugLicense) {
+        this.drugLicense = drugLicense;
+    }
+
+    public String getSubscriptionPlan() {
+        return subscriptionPlan;
+    }
+
+    public void setSubscriptionPlan(String subscriptionPlan) {
+        this.subscriptionPlan = subscriptionPlan;
     }
 
     public String getUsername() {

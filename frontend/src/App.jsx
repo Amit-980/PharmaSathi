@@ -10,16 +10,40 @@ import bholenathImage from "./assets/bholenath-login.png";
 import { isDemoMode } from "./api";
 import api from "./api";
 
+const demoAccountKey = "pharmasathi-demo-account";
+
+const readDemoAccount = () => {
+  try {
+    return JSON.parse(localStorage.getItem(demoAccountKey));
+  } catch {
+    return null;
+  }
+};
+
 function App() {
+  const [demoAccount, setDemoAccount] = useState(() =>
+    isDemoMode ? readDemoAccount() : null
+  );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [setupLoading, setSetupLoading] = useState(!isDemoMode);
-  const [isRegistered, setIsRegistered] = useState(isDemoMode);
-  const [shopInfo, setShopInfo] = useState({ shopName: "PharmaSathi", ownerName: "Admin" });
+  const [isRegistered, setIsRegistered] = useState(
+    isDemoMode ? Boolean(demoAccount) : false
+  );
+  const [registrationStep, setRegistrationStep] = useState(1);
+  const [shopInfo, setShopInfo] = useState(() => ({
+    shopName: demoAccount?.shopName || "PharmaSathi",
+    ownerName: demoAccount?.ownerName || "Admin",
+    plan: demoAccount?.plan || "Business",
+  }));
   const [registrationData, setRegistrationData] = useState({
     shopName: "",
     ownerName: "",
     phone: "",
     email: "",
+    address: "",
+    gstin: "",
+    drugLicense: "",
+    plan: "Business",
     username: "",
     password: "",
   });
@@ -40,6 +64,7 @@ function App() {
           setShopInfo({
             shopName: response.data.shopName,
             ownerName: response.data.ownerName,
+            plan: response.data.plan || "Business",
           });
         }
       })
@@ -60,8 +85,16 @@ function App() {
     setLoginError("");
 
     if (isDemoMode) {
+      if (
+        loginData.username !== demoAccount?.username ||
+        loginData.password !== demoAccount?.password
+      ) {
+        setLoginError("Invalid username or password");
+        return;
+      }
       setIsLoggedIn(true);
       setCurrentPage("dashboard");
+      setLoginData({ username: "", password: "" });
       return;
     }
 
@@ -70,6 +103,7 @@ function App() {
       setShopInfo({
         shopName: response.data.shopName,
         ownerName: response.data.ownerName,
+        plan: response.data.plan || "Business",
       });
       setIsLoggedIn(true);
       setCurrentPage("dashboard");
@@ -83,11 +117,26 @@ function App() {
     e.preventDefault();
     setLoginError("");
 
+    if (isDemoMode) {
+      const account = { ...registrationData };
+      localStorage.setItem(demoAccountKey, JSON.stringify(account));
+      setDemoAccount(account);
+      setShopInfo({
+        shopName: account.shopName,
+        ownerName: account.ownerName,
+        plan: account.plan,
+      });
+      setLoginData({ username: account.username, password: "" });
+      setIsRegistered(true);
+      return;
+    }
+
     try {
       const response = await api.post("/setup/register", registrationData);
       setShopInfo({
         shopName: response.data.shopName,
         ownerName: response.data.ownerName,
+        plan: response.data.plan || registrationData.plan,
       });
       setLoginData({
         username: registrationData.username,
@@ -97,15 +146,6 @@ function App() {
     } catch (error) {
       setLoginError(error.response?.data?.message || "Registration complete nahi ho paaya");
     }
-  };
-
-  const enterDemo = () => {
-    if (!isDemoMode) {
-      window.location.href = `${window.location.pathname}?demo=1`;
-      return;
-    }
-    setIsLoggedIn(true);
-    setCurrentPage("dashboard");
   };
 
   const handleLogout = () => {
@@ -157,44 +197,184 @@ function App() {
   }
 
   if (!isRegistered) {
+    const registrationSteps = [
+      { number: 1, label: "Pharmacy" },
+      { number: 2, label: "Plan" },
+      { number: 3, label: "Login" },
+    ];
+
     return (
-      <main className="login-page">
-        <section className="login-card registration-card">
-          <div className="devotional-brand">
-            <img src={bholenathImage} alt="Mahadev" />
-          </div>
-          <h1 className="login-title">Register Your Pharmacy</h1>
-          <p className="registration-copy">First-time setup · Details isi computer par secure rahengi</p>
+      <main className="registration-page">
+        <section className="registration-shell">
+          <header className="registration-header">
+            <div className="registration-brand">
+              <div className="devotional-brand">
+                <img src={bholenathImage} alt="Mahadev" />
+              </div>
+              <div>
+                <p>PharmaSathi Setup</p>
+                <h1>Register Your Pharmacy</h1>
+                <span>One-time setup for this installation</span>
+              </div>
+            </div>
+            <div className="registration-progress">
+              {registrationSteps.map((step) => (
+                <div
+                  className={registrationStep >= step.number ? "active" : ""}
+                  key={step.number}
+                >
+                  <b>{step.number}</b>
+                  <span>{step.label}</span>
+                </div>
+              ))}
+            </div>
+          </header>
 
           {loginError && <div className="alert alert-danger py-2">{loginError}</div>}
 
-          <form className="registration-grid" onSubmit={handleRegistration}>
-            {[
-              ["shopName", "Pharmacy Name", "text"],
-              ["ownerName", "Owner Name", "text"],
-              ["phone", "Mobile Number", "tel"],
-              ["email", "Email (Optional)", "email"],
-              ["username", "Login Username", "text"],
-              ["password", "Login Password", "password"],
-            ].map(([name, label, type]) => (
-              <label key={name}>
-                <span>{label}</span>
-                <input
-                  className="form-control"
-                  name={name}
-                  type={type}
-                  value={registrationData[name]}
-                  onChange={(e) =>
-                    setRegistrationData((previous) => ({
-                      ...previous,
-                      [e.target.name]: e.target.value,
-                    }))
+          <form className="registration-form" onSubmit={handleRegistration}>
+            {registrationStep === 1 && (
+              <section className="registration-step">
+                <div className="registration-step-heading">
+                  <p>Business details</p>
+                  <h2>Tell us about the pharmacy</h2>
+                </div>
+                <div className="registration-grid">
+                  {[
+                    ["shopName", "Pharmacy Name", "text", true],
+                    ["ownerName", "Owner Name", "text", true],
+                    ["phone", "Mobile Number", "tel", true],
+                    ["email", "Email Address", "email", false],
+                    ["gstin", "GSTIN (Optional)", "text", false],
+                    ["drugLicense", "Drug Licence Number", "text", false],
+                  ].map(([name, label, type, required]) => (
+                    <RegistrationInput
+                      key={name}
+                      name={name}
+                      label={label}
+                      type={type}
+                      required={required}
+                      value={registrationData[name]}
+                      onChange={setRegistrationData}
+                    />
+                  ))}
+                  <label className="registration-full-field">
+                    <span>Pharmacy Address</span>
+                    <textarea
+                      name="address"
+                      value={registrationData.address}
+                      onChange={(e) =>
+                        setRegistrationData((previous) => ({
+                          ...previous,
+                          address: e.target.value,
+                        }))
+                      }
+                      rows="2"
+                      required
+                    />
+                  </label>
+                </div>
+              </section>
+            )}
+
+            {registrationStep === 2 && (
+              <section className="registration-step">
+                <div className="registration-step-heading">
+                  <p>Subscription</p>
+                  <h2>Choose the customer plan</h2>
+                </div>
+                <div className="registration-plan-grid">
+                  {[
+                    ["Starter", "₹499", "Billing, stock and basic reports"],
+                    ["Business", "₹999", "GST, audit reports and backup"],
+                    ["Pro", "₹1,499", "Multi-user access and priority support"],
+                  ].map(([name, price, description]) => (
+                    <label
+                      className={registrationData.plan === name ? "selected" : ""}
+                      key={name}
+                    >
+                      <input
+                        type="radio"
+                        name="plan"
+                        value={name}
+                        checked={registrationData.plan === name}
+                        onChange={(e) =>
+                          setRegistrationData((previous) => ({
+                            ...previous,
+                            plan: e.target.value,
+                          }))
+                        }
+                      />
+                      <span>{name}</span>
+                      <strong>{price}<small>/month</small></strong>
+                      <p>{description}</p>
+                    </label>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {registrationStep === 3 && (
+              <section className="registration-step">
+                <div className="registration-step-heading">
+                  <p>Secure access</p>
+                  <h2>Create the owner login</h2>
+                </div>
+                <div className="registration-grid">
+                  <RegistrationInput
+                    name="username"
+                    label="Login Username"
+                    type="text"
+                    required
+                    value={registrationData.username}
+                    onChange={setRegistrationData}
+                  />
+                  <RegistrationInput
+                    name="password"
+                    label="Login Password"
+                    type="password"
+                    required
+                    value={registrationData.password}
+                    onChange={setRegistrationData}
+                  />
+                </div>
+                <div className="registration-summary">
+                  <div><span>Pharmacy</span><strong>{registrationData.shopName}</strong></div>
+                  <div><span>Owner</span><strong>{registrationData.ownerName}</strong></div>
+                  <div><span>Plan</span><strong>{registrationData.plan}</strong></div>
+                  <div><span>Mobile</span><strong>{registrationData.phone}</strong></div>
+                </div>
+              </section>
+            )}
+
+            <footer className="registration-actions">
+              {registrationStep > 1 ? (
+                <button type="button" className="registration-back" onClick={() => setRegistrationStep((step) => step - 1)}>
+                  <i className="bi bi-arrow-left"></i> Back
+                </button>
+              ) : <span />}
+
+              {registrationStep < 3 ? (
+                <button
+                  type="button"
+                  className="registration-next"
+                  onClick={() => setRegistrationStep((step) => step + 1)}
+                  disabled={
+                    registrationStep === 1 &&
+                    (!registrationData.shopName ||
+                      !registrationData.ownerName ||
+                      !/^\d{10}$/.test(registrationData.phone) ||
+                      !registrationData.address)
                   }
-                  required={name !== "email"}
-                />
-              </label>
-            ))}
-            <button className="btn btn-primary" type="submit">Register & Continue</button>
+                >
+                  Continue <i className="bi bi-arrow-right"></i>
+                </button>
+              ) : (
+                <button className="registration-next" type="submit">
+                  <i className="bi bi-check-circle"></i> Register & Continue
+                </button>
+              )}
+            </footer>
           </form>
         </section>
       </main>
@@ -251,14 +431,12 @@ function App() {
               />
             </div>
 
-            <div className="login-hint">Use admin / admin123</div>
+            <div className="login-hint">
+              Registration ke time banaya hua username aur password use karein
+            </div>
 
             <button className="btn btn-primary btn-lg w-100 mt-3" type="submit">
               Login
-            </button>
-            <button className="demo-login-btn" type="button" onClick={enterDemo}>
-              <i className="bi bi-play-circle"></i>
-              Open Live Demo
             </button>
           </form>
         </section>
@@ -337,6 +515,26 @@ function App() {
         {renderPage()}
       </main>
     </div>
+  );
+}
+
+function RegistrationInput({ name, label, type, required, value, onChange }) {
+  return (
+    <label>
+      <span>{label}</span>
+      <input
+        name={name}
+        type={type}
+        value={value}
+        onChange={(e) =>
+          onChange((previous) => ({
+            ...previous,
+            [e.target.name]: e.target.value,
+          }))
+        }
+        required={required}
+      />
+    </label>
   );
 }
 

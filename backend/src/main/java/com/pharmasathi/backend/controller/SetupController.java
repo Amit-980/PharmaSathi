@@ -31,7 +31,8 @@ public class SetupController {
             return ResponseEntity.ok(Map.of(
                     "registered", true,
                     "shopName", account.getShopName(),
-                    "ownerName", account.getOwnerName()
+                    "ownerName", account.getOwnerName(),
+                    "plan", account.getSubscriptionPlan()
             ));
         } catch (IllegalArgumentException | IllegalStateException exception) {
             return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
