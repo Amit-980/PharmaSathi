@@ -9,6 +9,7 @@ function Medicine() {
     batchNo: "",
     expiryDate: "",
     mrp: "",
+    gstRate: "5",
     stockQuantity: "",
   });
   const [editingId, setEditingId] = useState(null);
@@ -51,6 +52,7 @@ function Medicine() {
         batchNo: formData.batchNo,
         expiryDate: formData.expiryDate || null,
         mrp: parseFloat(formData.mrp),
+        gstRate: parseFloat(formData.gstRate),
         stockQuantity: parseInt(formData.stockQuantity),
       };
 
@@ -72,6 +74,7 @@ function Medicine() {
         batchNo: "",
         expiryDate: "",
         mrp: "",
+        gstRate: "5",
         stockQuantity: "",
       });
       loadMedicines();
@@ -92,6 +95,7 @@ function Medicine() {
       batchNo: medicine.batchNo,
       expiryDate: medicine.expiryDate || "",
       mrp: medicine.mrp,
+      gstRate: String(medicine.gstRate ?? 5),
       stockQuantity: medicine.stockQuantity,
     });
   };
@@ -104,6 +108,7 @@ function Medicine() {
       batchNo: "",
       expiryDate: "",
       mrp: "",
+      gstRate: "5",
       stockQuantity: "",
     });
   };
@@ -239,6 +244,24 @@ function Medicine() {
 
                   <div className="mb-4">
                     <label className="form-label text-white fw-600">
+                      <i className="bi bi-percent me-2"></i>GST Rate
+                    </label>
+                    <select
+                      className="form-select form-select-lg"
+                      name="gstRate"
+                      value={formData.gstRate}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="0">Nil / 0%</option>
+                      <option value="5">5% (Current standard medicine rate)</option>
+                      <option value="12">12% (Legacy invoice)</option>
+                      <option value="18">18%</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="form-label text-white fw-600">
                       <i className="bi bi-boxes me-2"></i>Stock Quantity
                     </label>
                     <input
@@ -298,80 +321,54 @@ function Medicine() {
                     <p className="mt-3 mb-0">No medicines added yet. Start by adding a medicine!</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-hover mb-0">
-                      <thead className="table-light">
-                        <tr>
-                          <th className="fw-bold">
-                            <i className="bi bi-pill me-2"></i>Name
-                          </th>
-                          <th className="fw-bold">Brand</th>
-                          <th className="fw-bold">Batch</th>
-                          <th className="fw-bold">MRP</th>
-                          <th className="fw-bold">
-                            <i className="bi bi-boxes me-2"></i>Stock
-                          </th>
-                          <th className="fw-bold">
-                            <i className="bi bi-calendar me-2"></i>Expiry
-                          </th>
-                          <th className="fw-bold">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {medicines.map((med) => (
-                          <tr key={med.id} className="align-middle">
-                            <td className="fw-bold">{med.name}</td>
-                            <td>{med.brand}</td>
-                            <td>
-                              <small className="text-muted">{med.batchNo}</small>
-                            </td>
-                            <td>
-                              <span className="badge bg-success">₹{med.mrp}</span>
-                            </td>
-                            <td>
-                              <span
-                                className={`badge ${
-                                  med.stockQuantity === 0
-                                    ? "bg-danger"
-                                    : med.stockQuantity <= 10
-                                    ? "bg-warning text-dark"
-                                    : "bg-success"
-                                }`}
-                              >
-                                {med.stockQuantity} units
-                              </span>
-                            </td>
-                            <td>
-                              {med.expiryDate ? (
-                                <small className="text-danger fw-bold">{med.expiryDate}</small>
-                              ) : (
-                                <small className="text-muted">-</small>
-                              )}
-                            </td>
-                            <td>
-                              <div className="btn-group btn-group-sm" role="group">
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-primary"
-                                  onClick={() => handleEdit(med)}
-                                  title="Edit"
-                                >
-                                  <i className="bi bi-pencil"></i>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-danger"
-                                  onClick={() => handleDelete(med.id)}
-                                  title="Delete"
-                                >
-                                  <i className="bi bi-trash"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="record-card-grid">
+                    {medicines.map((med) => (
+                      <article className="record-card medicine-record-card" key={med.id}>
+                        <div className="record-card-title">
+                          <span>Medicine</span>
+                          <strong>{med.name}</strong>
+                          <small>{med.brand}</small>
+                        </div>
+                        <div className="record-card-details">
+                          <div>
+                            <small>Batch</small>
+                            <strong>{med.batchNo || "-"}</strong>
+                          </div>
+                          <div>
+                            <small>MRP</small>
+                            <strong>₹{Number(med.mrp || 0).toFixed(2)}</strong>
+                          </div>
+                          <div>
+                            <small>GST</small>
+                            <strong>{Number(med.gstRate ?? 5)}%</strong>
+                          </div>
+                          <div>
+                            <small>Stock</small>
+                            <strong>{med.stockQuantity} units</strong>
+                          </div>
+                          <div>
+                            <small>Expiry</small>
+                            <strong className="record-date">{med.expiryDate || "-"}</strong>
+                          </div>
+                        </div>
+                        <div className="record-card-actions">
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary"
+                            onClick={() => handleEdit(med)}
+                          >
+                            <i className="bi bi-pencil"></i> Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger"
+                            onClick={() => handleDelete(med.id)}
+                          >
+                            <i className="bi bi-trash"></i> Delete
+                          </button>
+                        </div>
+                      </article>
+                    ))}
                   </div>
                 )}
               </div>

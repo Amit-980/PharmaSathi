@@ -36,7 +36,9 @@ public Medicine updateMedicine(Long id, Medicine medicine) {
     existing.setName(medicine.getName());
     existing.setBrand(medicine.getBrand());
     existing.setBatchNo(medicine.getBatchNo());
+    existing.setExpiryDate(medicine.getExpiryDate());
     existing.setMrp(medicine.getMrp());
+    existing.setGstRate(medicine.getGstRate());
     existing.setStockQuantity(medicine.getStockQuantity());
 
     return repository.save(existing);

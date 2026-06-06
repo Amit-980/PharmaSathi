@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
 
 const emptySaleForm = {
@@ -22,6 +23,33 @@ function Sale() {
   useEffect(() => {
     loadMedicines();
     loadSales();
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("bill-open", Boolean(bill));
+
+    return () => {
+      document.body.classList.remove("bill-open");
+    };
+  }, [bill]);
+
+  useEffect(() => {
+    const originalTitle = document.title;
+    const hidePrintHeader = () => {
+      document.title = "";
+    };
+    const restoreTitle = () => {
+      document.title = originalTitle;
+    };
+
+    window.addEventListener("beforeprint", hidePrintHeader);
+    window.addEventListener("afterprint", restoreTitle);
+
+    return () => {
+      window.removeEventListener("beforeprint", hidePrintHeader);
+      window.removeEventListener("afterprint", restoreTitle);
+      document.title = originalTitle;
+    };
   }, []);
 
   const loadMedicines = async () => {
@@ -139,6 +167,12 @@ function Sale() {
     const quantity = Number(sale.quantity || 0);
     const rate = Number(sale.sellingPrice || 0);
     const total = quantity * rate;
+    const gstRate = Number(medicine?.gstRate ?? 5);
+    const taxableAmount =
+      gstRate > 0 ? (total * 100) / (100 + gstRate) : total;
+    const gstAmount = total - taxableAmount;
+    const cgstAmount = gstAmount / 2;
+    const sgstAmount = gstAmount / 2;
 
     return {
       billNo: `PS-${String(sale.id || Date.now()).padStart(5, "0")}`,
@@ -150,6 +184,11 @@ function Sale() {
       expiryDate: medicine?.expiryDate || "-",
       quantity,
       rate,
+      gstRate,
+      taxableAmount,
+      gstAmount,
+      cgstAmount,
+      sgstAmount,
       total,
     };
   };
@@ -161,6 +200,13 @@ function Sale() {
         medicine: getMedicineById(sale.medicineId),
       })
     );
+  };
+
+  const handlePrintSaleBill = (sale) => {
+    handleViewBill(sale);
+    setTimeout(() => {
+      window.print();
+    }, 150);
   };
 
   const handlePrintBill = () => {
@@ -182,6 +228,9 @@ function Sale() {
     (sum, sale) => sum + Number(sale.quantity || 0) * Number(sale.sellingPrice || 0),
     0
   );
+  const customerSearch = searchQuery.trim();
+  const searchedByPhone = /^[0-9]{4,10}$/.test(customerSearch);
+  const latestFilteredSale = filteredSales[0];
 
   return (
     <div className="sale-container module-page sale-page min-vh-100 py-5">
@@ -221,7 +270,7 @@ function Sale() {
 
         <div className="row g-4">
           {/* Form Section */}
-          <div className="col-lg-5">
+          <div className="col-xl-4">
             <div className="card gradient-card gradient-blue shadow-lg border-0 sticky-lg-top" style={{ top: "20px" }}>
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
@@ -336,31 +385,42 @@ function Sale() {
           </div>
 
           {/* Table Section */}
-          <div className="col-lg-7">
+          <div className="col-xl-8">
             <div className="card shadow-lg border-0">
-              <div className="card-header bg-light border-bottom p-4">
-                <h5 className="mb-0 fw-bold">
-                  <i className="bi bi-receipt me-2 text-primary"></i>
-                  Sale History
-                </h5>
-                <small className="text-muted">Total: {sales.length} sales</small>
+              <div className="card-header bg-light border-bottom sale-history-header">
+                <div className="sale-history-heading">
+                  <i className="bi bi-receipt text-primary"></i>
+                  <div>
+                    <h5>Sale History</h5>
+                    <small>Customer invoices and recorded sales</small>
+                  </div>
+                </div>
+                <span className="sale-history-count">
+                  <strong>{sales.length}</strong>
+                  {sales.length === 1 ? "Sale" : "Sales"}
+                </span>
               </div>
               <div className="sale-search-bar">
-                <div>
-                  <label className="form-label">Search by mobile or medicine</label>
-                  <input
-                    type="search"
-                    className="form-control"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Mobile number ya medicine name"
-                  />
+                <div className="sale-mobile-search">
+                  <label className="form-label">Search by customer mobile</label>
+                  <div className="sale-mobile-search-input">
+                    <i className="bi bi-phone"></i>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Enter mobile number"
+                      inputMode="numeric"
+                    />
+                  </div>
                 </div>
                 <button
                   type="button"
-                  className="btn btn-outline-secondary align-self-end"
+                  className="btn sale-clear-btn align-self-end"
                   onClick={() => setSearchQuery("")}
                 >
+                  <i className="bi bi-x-circle"></i>
                   Clear
                 </button>
                 <div className="sale-search-summary">
@@ -369,6 +429,26 @@ function Sale() {
                   <b>₹{totalFilteredAmount.toFixed(2)}</b>
                 </div>
               </div>
+              {searchedByPhone && filteredSales.length > 0 && (
+                <div className="customer-sale-summary">
+                  <div>
+                    <small>Customer Mobile</small>
+                    <strong>{customerSearch}</strong>
+                  </div>
+                  <div>
+                    <small>Total Bills</small>
+                    <strong>{filteredSales.length}</strong>
+                  </div>
+                  <div>
+                    <small>Total Amount</small>
+                    <strong>₹{totalFilteredAmount.toFixed(2)}</strong>
+                  </div>
+                  <div>
+                    <small>Latest Sale</small>
+                    <strong>{latestFilteredSale?.saleDate || "-"}</strong>
+                  </div>
+                </div>
+              )}
               <div className="card-body p-0">
                 {sales.length === 0 ? (
                   <div className="p-5 text-center text-muted">
@@ -380,61 +460,120 @@ function Sale() {
                     <i className="bi bi-search fs-1"></i>
                     <p className="mt-3 mb-0">Is search ke liye koi sale nahi mili.</p>
                   </div>
+                ) : searchedByPhone ? (
+                  <div className="customer-bill-results">
+                    {filteredSales.map((sale) => {
+                      const total = Number(sale.quantity || 0) * Number(sale.sellingPrice || 0);
+
+                      return (
+                        <article className="customer-bill-card" key={sale.id}>
+                          <div className="customer-bill-main">
+                            <span>Bill #{sale.id}</span>
+                            <strong>{getMedicineName(sale.medicineId)}</strong>
+                            <small>{sale.saleDate} · Mobile {sale.customerPhone || "-"}</small>
+                          </div>
+                          <div className="customer-bill-meta">
+                            <div>
+                              <small>Qty</small>
+                              <strong>{sale.quantity}</strong>
+                            </div>
+                            <div>
+                              <small>Rate</small>
+                              <strong>₹{Number(sale.sellingPrice || 0).toFixed(2)}</strong>
+                            </div>
+                            <div>
+                              <small>Total</small>
+                              <strong>₹{total.toFixed(2)}</strong>
+                            </div>
+                          </div>
+                          <div className="customer-bill-actions">
+                            <button
+                              className="btn sale-view-bill-btn"
+                              type="button"
+                              onClick={() => handleViewBill(sale)}
+                            >
+                              <i className="bi bi-receipt-cutoff"></i>
+                              View Bill
+                            </button>
+                            <button
+                              className="btn btn-primary"
+                              type="button"
+                              onClick={() => handlePrintSaleBill(sale)}
+                            >
+                              Print Bill
+                            </button>
+                            <button
+                              className="btn btn-outline-danger"
+                              type="button"
+                              onClick={() => handleDelete(sale.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-hover mb-0">
-                      <thead className="table-light">
-                        <tr>
-                          <th className="fw-bold">#</th>
-                          <th className="fw-bold">
-                            <i className="bi bi-pill me-2"></i>Medicine
-                          </th>
-                          <th className="fw-bold">Mobile</th>
-                          <th className="fw-bold">Qty</th>
-                          <th className="fw-bold">Price</th>
-                          <th className="fw-bold">Total</th>
-                          <th className="fw-bold">Date</th>
-                          <th className="fw-bold">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredSales.map((sale) => (
-                          <tr key={sale.id} className="align-middle">
-                            <td className="fw-bold text-primary">{sale.id}</td>
-                            <td>{getMedicineName(sale.medicineId)}</td>
-                            <td>{sale.customerPhone || "-"}</td>
-                            <td>
-                              <span className="badge bg-warning text-dark">{sale.quantity} units</span>
-                            </td>
-                            <td>
-                              <span className="badge bg-success">₹{sale.sellingPrice}</span>
-                            </td>
-                            <td className="fw-bold">
-                              ₹{(sale.quantity * sale.sellingPrice).toFixed(2)}
-                            </td>
-                            <td>
-                              <small className="text-muted">{sale.saleDate}</small>
-                            </td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => handleViewBill(sale)}
-                                title="Generate bill"
-                              >
-                                <i className="bi bi-receipt"></i>
-                              </button>
-                              <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDelete(sale.id)}
-                                title="Delete"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="sale-history-grid">
+                    {filteredSales.map((sale) => {
+                      const total =
+                        Number(sale.quantity || 0) *
+                        Number(sale.sellingPrice || 0);
+
+                      return (
+                        <article className="sale-history-card" key={sale.id}>
+                          <div className="sale-history-title">
+                            <span>Sale #{sale.id}</span>
+                            <strong>{getMedicineName(sale.medicineId)}</strong>
+                            <small>{sale.customerPhone || "No mobile number"}</small>
+                          </div>
+
+                          <div className="sale-history-details">
+                            <div>
+                              <small>Quantity</small>
+                              <strong>{sale.quantity} units</strong>
+                            </div>
+                            <div>
+                              <small>Unit Price</small>
+                              <strong>₹{Number(sale.sellingPrice || 0).toFixed(2)}</strong>
+                            </div>
+                            <div>
+                              <small>Total</small>
+                              <strong>₹{total.toFixed(2)}</strong>
+                            </div>
+                            <div>
+                              <small>Date</small>
+                              <strong>{sale.saleDate || "-"}</strong>
+                            </div>
+                          </div>
+
+                          <div className="sale-history-actions">
+                            <button
+                              className="btn sale-view-bill-btn"
+                              type="button"
+                              onClick={() => handleViewBill(sale)}
+                            >
+                              <i className="bi bi-receipt-cutoff"></i> View Bill
+                            </button>
+                            <button
+                              className="btn btn-primary"
+                              type="button"
+                              onClick={() => handlePrintSaleBill(sale)}
+                            >
+                              Print
+                            </button>
+                            <button
+                              className="btn btn-outline-danger"
+                              type="button"
+                              onClick={() => handleDelete(sale.id)}
+                            >
+                              <i className="bi bi-trash"></i> Delete
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -442,14 +581,22 @@ function Sale() {
           </div>
         </div>
 
-        {bill && (
+        {bill &&
+          createPortal(
           <div className="bill-backdrop">
             <div className="bill-card printable-bill">
               <div className="bill-top">
-                <div>
+                <div className="bill-brand">
+                  <span className="bill-logo">PS</span>
+                  <div>
                   <p className="bill-kicker">Pharmacy invoice</p>
                   <h2>PharmaSathi</h2>
-                  <span>Medicine Sale Bill</span>
+                    <span>Medicine Sale Bill · Trusted pharmacy service</span>
+                  </div>
+                </div>
+                <div className="invoice-seal">
+                  <small>Paid Invoice</small>
+                  <strong>{bill.billNo}</strong>
                 </div>
                 <button
                   type="button"
@@ -475,34 +622,68 @@ function Sale() {
               </div>
 
               <div className="bill-table">
-                <div className="bill-row bill-head">
-                  <span>Medicine</span>
-                  <span>Batch</span>
-                  <span>Expiry</span>
-                  <span>Qty</span>
-                  <span>Rate</span>
-                  <span>Total</span>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Medicine</th>
+                      <th>Batch</th>
+                      <th>Expiry</th>
+                      <th>Qty</th>
+                      <th>Rate (Incl. GST)</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-label="Medicine">
+                        <strong>{bill.medicineName}</strong>
+                        <small>{bill.brand}</small>
+                      </td>
+                      <td data-label="Batch">{bill.batchNo}</td>
+                      <td data-label="Expiry">{bill.expiryDate}</td>
+                      <td data-label="Qty">{bill.quantity}</td>
+                      <td data-label="Rate">₹{bill.rate.toFixed(2)}</td>
+                      <td data-label="Total">₹{bill.total.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="bill-tax-summary">
+                <div>
+                  <span>Taxable Value</span>
+                  <strong>₹{bill.taxableAmount.toFixed(2)}</strong>
                 </div>
-                <div className="bill-row">
-                  <span>
-                    <strong>{bill.medicineName}</strong>
-                    <small>{bill.brand}</small>
-                  </span>
-                  <span>{bill.batchNo}</span>
-                  <span>{bill.expiryDate}</span>
-                  <span>{bill.quantity}</span>
-                  <span>₹{bill.rate.toFixed(2)}</span>
-                  <span>₹{bill.total.toFixed(2)}</span>
+                <div>
+                  <span>CGST ({(bill.gstRate / 2).toFixed(1)}%)</span>
+                  <strong>₹{bill.cgstAmount.toFixed(2)}</strong>
+                </div>
+                <div>
+                  <span>SGST ({(bill.gstRate / 2).toFixed(1)}%)</span>
+                  <strong>₹{bill.sgstAmount.toFixed(2)}</strong>
+                </div>
+                <div className="bill-tax-total">
+                  <span>Total GST ({bill.gstRate}%)</span>
+                  <strong>₹{bill.gstAmount.toFixed(2)}</strong>
                 </div>
               </div>
 
               <div className="bill-total">
-                <span>Grand Total</span>
-                <strong>₹{bill.total.toFixed(2)}</strong>
+                <div className="bill-payment-note">
+                  <small>Payment Status</small>
+                  <strong>Paid</strong>
+                </div>
+                <div className="bill-grand-total">
+                  <span>Grand Total</span>
+                  <strong>₹{bill.total.toFixed(2)}</strong>
+                </div>
               </div>
 
               <div className="bill-footer">
-                <p>Thank you for choosing PharmaSathi.</p>
+                <div>
+                  <strong>Thank you for choosing PharmaSathi.</strong>
+                  <p>Prices are inclusive of GST. Please keep this invoice for reference and returns.</p>
+                </div>
                 <div className="bill-actions no-print">
                   <button type="button" className="btn btn-outline-secondary" onClick={() => setBill(null)}>
                     Close
@@ -513,8 +694,9 @@ function Sale() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>,
+            document.body
+          )}
       </div>
     </div>
   );

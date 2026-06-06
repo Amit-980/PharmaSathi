@@ -279,53 +279,49 @@ function Purchase() {
                     <p className="mt-3 mb-0">No purchases recorded yet. Start by recording a purchase!</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-hover mb-0">
-                      <thead className="table-light">
-                        <tr>
-                          <th className="fw-bold">#</th>
-                          <th className="fw-bold">
-                            <i className="bi bi-pill me-2"></i>Medicine
-                          </th>
-                          <th className="fw-bold">Supplier</th>
-                          <th className="fw-bold">Qty</th>
-                          <th className="fw-bold">Price</th>
-                          <th className="fw-bold">Total</th>
-                          <th className="fw-bold">Date</th>
-                          <th className="fw-bold">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {purchases.map((purchase) => (
-                          <tr key={purchase.id} className="align-middle">
-                            <td className="fw-bold text-primary">{purchase.id}</td>
-                            <td>{getMedicineName(purchase.medicineId)}</td>
-                            <td>{getSupplierName(purchase.supplierId)}</td>
-                            <td>
-                              <span className="badge bg-info">{purchase.quantity} units</span>
-                            </td>
-                            <td>
-                              <span className="badge bg-success">₹{purchase.purchasePrice}</span>
-                            </td>
-                            <td className="fw-bold">
-                              ₹{(purchase.quantity * purchase.purchasePrice).toFixed(2)}
-                            </td>
-                            <td>
-                              <small className="text-muted">{purchase.purchaseDate}</small>
-                            </td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDelete(purchase.id)}
-                                title="Delete"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="record-card-grid">
+                    {purchases.map((purchase) => {
+                      const total =
+                        Number(purchase.quantity || 0) *
+                        Number(purchase.purchasePrice || 0);
+
+                      return (
+                        <article className="record-card purchase-record-card" key={purchase.id}>
+                          <div className="record-card-title">
+                            <span>Purchase #{purchase.id}</span>
+                            <strong>{getMedicineName(purchase.medicineId)}</strong>
+                            <small>{getSupplierName(purchase.supplierId)}</small>
+                          </div>
+                          <div className="record-card-details">
+                            <div>
+                              <small>Quantity</small>
+                              <strong>{purchase.quantity} units</strong>
+                            </div>
+                            <div>
+                              <small>Unit Price</small>
+                              <strong>₹{Number(purchase.purchasePrice || 0).toFixed(2)}</strong>
+                            </div>
+                            <div>
+                              <small>Total</small>
+                              <strong>₹{total.toFixed(2)}</strong>
+                            </div>
+                            <div>
+                              <small>Date</small>
+                              <strong className="record-date">{purchase.purchaseDate || "-"}</strong>
+                            </div>
+                          </div>
+                          <div className="record-card-actions">
+                            <button
+                              className="btn btn-outline-danger"
+                              type="button"
+                              onClick={() => handleDelete(purchase.id)}
+                            >
+                              <i className="bi bi-trash"></i> Delete Purchase
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
                 )}
               </div>

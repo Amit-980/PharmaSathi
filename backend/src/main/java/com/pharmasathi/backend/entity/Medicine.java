@@ -16,6 +16,7 @@ public class Medicine {
     private String batchNo;
     private LocalDate expiryDate;
     private Double mrp;
+    private Double gstRate;
     private Integer stockQuantity;
 
     public Medicine() {
@@ -67,6 +68,14 @@ public class Medicine {
 
     public void setMrp(Double mrp) {
         this.mrp = mrp;
+    }
+
+    public Double getGstRate() {
+        return gstRate;
+    }
+
+    public void setGstRate(Double gstRate) {
+        this.gstRate = gstRate;
     }
 
     public Integer getStockQuantity() {

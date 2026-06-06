@@ -137,9 +137,9 @@ function Supplier() {
           </div>
         )}
 
-        <div className="row g-4">
-          <div className="col-lg-4">
-            <div className="card shadow-sm border-0 sticky-top" style={{ top: "20px" }}>
+        <div className="row g-4 supplier-workspace">
+          <div className="col-xl-4 col-lg-5">
+            <div className="card shadow-sm border-0 supplier-form-card">
               <div className="card-body p-4">
                 <h5 className="card-title fw-bold mb-4">
                   {editingId ? (
@@ -247,7 +247,7 @@ function Supplier() {
             </div>
           </div>
 
-          <div className="col-lg-8">
+          <div className="col-xl-8 col-lg-7">
             <div className="card shadow-sm border-0">
               <div className="card-body p-4">
                 <h5 className="card-title fw-bold mb-4">
@@ -262,62 +262,47 @@ function Supplier() {
                     <p className="text-muted small">Add your first supplier using the form on the left</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-hover mb-0">
-                      <thead>
-                        <tr className="table-light">
-                          <th className="fw-bold text-dark">Supplier Name</th>
-                          <th className="fw-bold text-dark">Contact</th>
-                          <th className="fw-bold text-dark">Email</th>
-                          <th className="fw-bold text-dark">Address</th>
-                          <th className="fw-bold text-dark">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {suppliers.map((supplier) => (
-                          <tr key={supplier.id} className="align-middle">
-                            <td>
-                              <div className="fw-bold text-dark">{supplier.name}</div>
-                            </td>
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <i className="bi bi-telephone me-2 text-info"></i>
-                                {supplier.phone}
-                              </div>
-                            </td>
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <i className="bi bi-envelope me-2 text-warning"></i>
-                                {supplier.email}
-                              </div>
-                            </td>
-                            <td>
-                              <small className="text-muted">{supplier.address}</small>
-                            </td>
-                            <td>
-                              <div className="btn-group" role="group">
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-outline-primary fw-bold"
-                                  onClick={() => handleEdit(supplier)}
-                                  title="Edit supplier"
-                                >
-                                  <i className="bi bi-pencil-square"></i> Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-outline-danger fw-bold"
-                                  onClick={() => handleDelete(supplier.id)}
-                                  title="Delete supplier"
-                                >
-                                  <i className="bi bi-trash"></i> Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="supplier-card-grid">
+                    {suppliers.map((supplier) => (
+                      <article className="supplier-list-card" key={supplier.id}>
+                        <div className="supplier-list-title">
+                          <span>Supplier</span>
+                          <strong>{supplier.name}</strong>
+                        </div>
+                        <div className="supplier-list-details">
+                          <div>
+                            <small>Phone</small>
+                            <strong>{supplier.phone}</strong>
+                          </div>
+                          <div>
+                            <small>Email</small>
+                            <strong className="supplier-email-text">{supplier.email}</strong>
+                          </div>
+                          <div className="supplier-address-detail">
+                            <small>Address</small>
+                            <strong>{supplier.address || "No address"}</strong>
+                          </div>
+                        </div>
+                        <div className="supplier-actions">
+                          <button
+                            type="button"
+                            className="btn btn-primary fw-bold"
+                            onClick={() => handleEdit(supplier)}
+                            title="Edit supplier"
+                          >
+                            <i className="bi bi-pencil-square"></i> Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-danger fw-bold"
+                            onClick={() => handleDelete(supplier.id)}
+                            title="Delete supplier"
+                          >
+                            <i className="bi bi-trash"></i> Delete
+                          </button>
+                        </div>
+                      </article>
+                    ))}
                   </div>
                 )}
               </div>
