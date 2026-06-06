@@ -12,10 +12,29 @@ import { isDemoMode } from "./api";
 import api from "./api";
 
 const demoAccountKey = "pharmasathi-demo-account";
+const trialDays = 30;
+
+const addDays = (date, days) => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result.toISOString();
+};
 
 const readDemoAccount = () => {
   try {
-    return JSON.parse(localStorage.getItem(demoAccountKey));
+    const account = JSON.parse(localStorage.getItem(demoAccountKey));
+    if (!account) return null;
+    if (!account.trialStartedAt || !account.trialEndsAt) {
+      const trialStartedAt = new Date().toISOString();
+      const upgradedAccount = {
+        ...account,
+        trialStartedAt,
+        trialEndsAt: addDays(trialStartedAt, trialDays),
+      };
+      localStorage.setItem(demoAccountKey, JSON.stringify(upgradedAccount));
+      return upgradedAccount;
+    }
+    return account;
   } catch {
     return null;
   }
@@ -55,6 +74,15 @@ function App() {
     password: "",
   });
   const [loginError, setLoginError] = useState("");
+  const [sessionStartedAt] = useState(() => Date.now());
+  const trialDaysLeft = demoAccount?.trialEndsAt
+    ? Math.max(
+        0,
+        Math.ceil(
+          (new Date(demoAccount.trialEndsAt).getTime() - sessionStartedAt) / 86400000
+        )
+      )
+    : trialDays;
 
   useEffect(() => {
     if (isDemoMode || ownerMode) return;
@@ -87,6 +115,10 @@ function App() {
     setLoginError("");
 
     if (isDemoMode) {
+      if (demoAccount?.trialEndsAt && new Date(demoAccount.trialEndsAt) < new Date()) {
+        setLoginError("30-day trial complete ho gaya hai. Subscription activate karne ke liye PharmaSathi owner se contact karein.");
+        return;
+      }
       if (
         loginData.username !== demoAccount?.username ||
         loginData.password !== demoAccount?.password
@@ -121,7 +153,12 @@ function App() {
     setLoginError("");
 
     if (isDemoMode) {
-      const account = { ...registrationData };
+      const trialStartedAt = new Date().toISOString();
+      const account = {
+        ...registrationData,
+        trialStartedAt,
+        trialEndsAt: addDays(trialStartedAt, trialDays),
+      };
       localStorage.setItem(demoAccountKey, JSON.stringify(account));
       setDemoAccount(account);
       setShopInfo({
@@ -523,8 +560,10 @@ function App() {
       <main className="app-content">
         {isDemoMode && (
           <div className="demo-mode-banner">
-            <strong>Live Demo</strong>
-            <span>Sample pharmacy data · Changes stay only in this browser</span>
+            <strong>Free Trial</strong>
+            <span>
+              {trialDaysLeft} days remaining · Data is saved in this browser
+            </span>
           </div>
         )}
         <header className="app-topbar">

@@ -45,7 +45,7 @@ function Plans() {
         ))}
       </section>
       <div className="plans-note">
-        Demo mode में payment नहीं लिया जाएगा. Production launch पर Razorpay subscription और automatic renewal जोड़ा जाएगा.
+        Free trial में payment नहीं लिया जाएगा. Trial के बाद PharmaSathi owner subscription activate करेगा.
       </div>
     </main>
   );
