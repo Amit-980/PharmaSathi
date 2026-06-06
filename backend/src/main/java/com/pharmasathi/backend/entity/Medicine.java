@@ -11,6 +11,9 @@ public class Medicine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private Long shopId = 1L;
+
     private String name;
     private String brand;
     private String batchNo;
@@ -28,6 +31,14 @@ public class Medicine {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(Long shopId) {
+        this.shopId = shopId;
     }
 
     public String getName() {

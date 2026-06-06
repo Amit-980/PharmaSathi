@@ -115,5 +115,15 @@ const api = axios.create({
   adapter: isDemoMode ? demoAdapter : undefined,
 });
 
+if (!isDemoMode) {
+  api.interceptors.request.use((config) => {
+    const token = sessionStorage.getItem("pharmasathi-auth-token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+}
+
 export { isDemoMode };
 export default api;

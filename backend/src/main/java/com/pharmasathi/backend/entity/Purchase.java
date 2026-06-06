@@ -11,6 +11,9 @@ public class Purchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private Long shopId = 1L;
+
     private Long medicineId;
     private Long supplierId;
     private Integer quantity;
@@ -26,6 +29,14 @@ public class Purchase {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(Long shopId) {
+        this.shopId = shopId;
     }
 
     public Long getMedicineId() {

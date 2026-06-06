@@ -1,6 +1,7 @@
 package com.pharmasathi.backend.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,6 +28,11 @@ public class ShopAccount {
     private String drugLicense;
 
     private String subscriptionPlan;
+
+    private Boolean enabled = true;
+
+    private LocalDate subscriptionStartDate;
+    private LocalDate subscriptionEndDate;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -110,6 +116,30 @@ public class ShopAccount {
 
     public void setSubscriptionPlan(String subscriptionPlan) {
         this.subscriptionPlan = subscriptionPlan;
+    }
+
+    public boolean isEnabled() {
+        return enabled == null || enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public LocalDate getSubscriptionStartDate() {
+        return subscriptionStartDate;
+    }
+
+    public void setSubscriptionStartDate(LocalDate subscriptionStartDate) {
+        this.subscriptionStartDate = subscriptionStartDate;
+    }
+
+    public LocalDate getSubscriptionEndDate() {
+        return subscriptionEndDate;
+    }
+
+    public void setSubscriptionEndDate(LocalDate subscriptionEndDate) {
+        this.subscriptionEndDate = subscriptionEndDate;
     }
 
     public String getUsername() {

@@ -6,6 +6,7 @@ import com.pharmasathi.backend.repository.PurchaseRepository;
 import com.pharmasathi.backend.repository.SaleRepository;
 import com.pharmasathi.backend.repository.SupplierRepository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,13 +30,13 @@ public class DashboardController {
     }
 
     @GetMapping("/api/dashboard")
-    public DashboardDto getDashboard() {
+    public DashboardDto getDashboard(@RequestAttribute Long shopId) {
 
         return new DashboardDto(
-                medicineRepository.count(),
-                supplierRepository.count(),
-                purchaseRepository.count(),
-                saleRepository.count()
+                medicineRepository.countByShopId(shopId),
+                supplierRepository.countByShopId(shopId),
+                purchaseRepository.countByShopId(shopId),
+                saleRepository.countByShopId(shopId)
         );
     }
 }

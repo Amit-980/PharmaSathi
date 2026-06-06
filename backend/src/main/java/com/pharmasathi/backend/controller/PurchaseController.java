@@ -17,30 +17,31 @@ public class PurchaseController {
     }
 
     @GetMapping
-    public List<Purchase> getAll() {
-        return service.getAllPurchases();
+    public List<Purchase> getAll(@RequestAttribute Long shopId) {
+        return service.getAllPurchases(shopId);
     }
 
     @PostMapping
-    public Purchase save(@RequestBody Purchase purchase) {
-        return service.savePurchase(purchase);
+    public Purchase save(@RequestAttribute Long shopId, @RequestBody Purchase purchase) {
+        return service.savePurchase(shopId, purchase);
     }
 
     @GetMapping("/{id}")
-    public Purchase getById(@PathVariable Long id) {
-        return service.getPurchaseById(id);
+    public Purchase getById(@RequestAttribute Long shopId, @PathVariable Long id) {
+        return service.getPurchaseById(shopId, id);
     }
 
     @PutMapping("/{id}")
     public Purchase update(
+            @RequestAttribute Long shopId,
             @PathVariable Long id,
             @RequestBody Purchase purchase) {
 
-        return service.updatePurchase(id, purchase);
+        return service.updatePurchase(shopId, id, purchase);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deletePurchase(id);
+    public void delete(@RequestAttribute Long shopId, @PathVariable Long id) {
+        service.deletePurchase(shopId, id);
     }
 }

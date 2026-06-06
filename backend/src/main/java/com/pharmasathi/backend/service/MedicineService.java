@@ -15,19 +15,21 @@ public class MedicineService {
         this.repository = repository;
     }
 
-    public List<Medicine> getAllMedicines() {
-        return repository.findAll();
+    public List<Medicine> getAllMedicines(Long shopId) {
+        return repository.findAllByShopIdOrderByIdDesc(shopId);
     }
 
-    public Medicine saveMedicine(Medicine medicine) {
+    public Medicine saveMedicine(Long shopId, Medicine medicine) {
+        medicine.setId(null);
+        medicine.setShopId(shopId);
         return repository.save(medicine);
     }
-public Medicine getMedicineById(Long id) {
-    return repository.findById(id).orElse(null);
+public Medicine getMedicineById(Long shopId, Long id) {
+    return repository.findByIdAndShopId(id, shopId).orElse(null);
 }
-public Medicine updateMedicine(Long id, Medicine medicine) {
+public Medicine updateMedicine(Long shopId, Long id, Medicine medicine) {
 
-    Medicine existing = repository.findById(id).orElse(null);
+    Medicine existing = repository.findByIdAndShopId(id, shopId).orElse(null);
 
     if (existing == null) {
         return null;
@@ -44,8 +46,8 @@ public Medicine updateMedicine(Long id, Medicine medicine) {
     return repository.save(existing);
 }
 
-public void deleteMedicine(Long id) {
-    repository.deleteById(id);
+public void deleteMedicine(Long shopId, Long id) {
+    repository.findByIdAndShopId(id, shopId).ifPresent(repository::delete);
 }
 
 }

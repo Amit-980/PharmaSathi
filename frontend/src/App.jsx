@@ -6,6 +6,7 @@ import Medicine from "./Medicine";
 import Supplier from "./Supplier";
 import Report from "./Report";
 import Plans from "./Plans";
+import OwnerPanel from "./OwnerPanel";
 import bholenathImage from "./assets/bholenath-login.png";
 import { isDemoMode } from "./api";
 import api from "./api";
@@ -21,11 +22,12 @@ const readDemoAccount = () => {
 };
 
 function App() {
+  const ownerMode = new URLSearchParams(window.location.search).get("owner") === "1";
   const [demoAccount, setDemoAccount] = useState(() =>
     isDemoMode ? readDemoAccount() : null
   );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [setupLoading, setSetupLoading] = useState(!isDemoMode);
+  const [setupLoading, setSetupLoading] = useState(!isDemoMode && !ownerMode);
   const [isRegistered, setIsRegistered] = useState(
     isDemoMode ? Boolean(demoAccount) : false
   );
@@ -55,7 +57,7 @@ function App() {
   const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
-    if (isDemoMode) return;
+    if (isDemoMode || ownerMode) return;
 
     api.get("/setup/status")
       .then((response) => {
@@ -70,7 +72,7 @@ function App() {
       })
       .catch(() => setLoginError("Application start nahi ho paayi. Please restart PharmaSathi."))
       .finally(() => setSetupLoading(false));
-  }, []);
+  }, [ownerMode]);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -105,6 +107,7 @@ function App() {
         ownerName: response.data.ownerName,
         plan: response.data.plan || "Business",
       });
+      sessionStorage.setItem("pharmasathi-auth-token", response.data.token);
       setIsLoggedIn(true);
       setCurrentPage("dashboard");
       setLoginData({ username: "", password: "" });
@@ -149,6 +152,7 @@ function App() {
   };
 
   const handleLogout = () => {
+    sessionStorage.removeItem("pharmasathi-auth-token");
     setIsLoggedIn(false);
     setCurrentPage("dashboard");
   };
@@ -184,6 +188,10 @@ function App() {
   ];
   const activeNavItem =
     navItems.find((item) => item.id === currentPage) || navItems[0];
+
+  if (ownerMode) {
+    return <OwnerPanel />;
+  }
 
   if (setupLoading) {
     return (
@@ -438,6 +446,20 @@ function App() {
             <button className="btn btn-primary btn-lg w-100 mt-3" type="submit">
               Login
             </button>
+            {!isDemoMode && (
+              <button
+                className="demo-login-btn"
+                type="button"
+                onClick={() => {
+                  setRegistrationStep(1);
+                  setIsRegistered(false);
+                  setLoginError("");
+                }}
+              >
+                <i className="bi bi-shop"></i>
+                Register New Pharmacy
+              </button>
+            )}
           </form>
         </section>
       </main>

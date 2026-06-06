@@ -15,21 +15,23 @@ public class SupplierService {
         this.repository = repository;
     }
 
-    public List<Supplier> getAllSuppliers() {
-        return repository.findAll();
+    public List<Supplier> getAllSuppliers(Long shopId) {
+        return repository.findAllByShopIdOrderByIdDesc(shopId);
     }
 
-    public Supplier saveSupplier(Supplier supplier) {
+    public Supplier saveSupplier(Long shopId, Supplier supplier) {
+        supplier.setId(null);
+        supplier.setShopId(shopId);
         return repository.save(supplier);
     }
 
-    public Supplier getSupplierById(Long id) {
-        return repository.findById(id).orElse(null);
+    public Supplier getSupplierById(Long shopId, Long id) {
+        return repository.findByIdAndShopId(id, shopId).orElse(null);
     }
 
-    public Supplier updateSupplier(Long id, Supplier supplier) {
+    public Supplier updateSupplier(Long shopId, Long id, Supplier supplier) {
 
-        Supplier existing = repository.findById(id).orElse(null);
+        Supplier existing = repository.findByIdAndShopId(id, shopId).orElse(null);
 
         if (existing == null) {
             return null;
@@ -43,7 +45,7 @@ public class SupplierService {
         return repository.save(existing);
     }
 
-    public void deleteSupplier(Long id) {
-        repository.deleteById(id);
+    public void deleteSupplier(Long shopId, Long id) {
+        repository.findByIdAndShopId(id, shopId).ifPresent(repository::delete);
     }
 }

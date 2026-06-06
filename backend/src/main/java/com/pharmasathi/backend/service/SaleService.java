@@ -22,18 +22,18 @@ public class SaleService {
         this.medicineRepository = medicineRepository;
     }
 
-    public List<Sale> getAllSales() {
-        return saleRepository.findAll();
+    public List<Sale> getAllSales(Long shopId) {
+        return saleRepository.findAllByShopIdOrderByIdDesc(shopId);
     }
 
-    public Sale getSaleById(Long id) {
-        return saleRepository.findById(id).orElse(null);
+    public Sale getSaleById(Long shopId, Long id) {
+        return saleRepository.findByIdAndShopId(id, shopId).orElse(null);
     }
 
-    public Sale saveSale(Sale sale) {
+    public Sale saveSale(Long shopId, Sale sale) {
 
         Medicine medicine = medicineRepository
-                .findById(sale.getMedicineId())
+                .findByIdAndShopId(sale.getMedicineId(), shopId)
                 .orElseThrow(() ->
                         new RuntimeException("Medicine not found"));
 
@@ -47,11 +47,13 @@ public class SaleService {
 
         medicineRepository.save(medicine);
 
+        sale.setId(null);
+        sale.setShopId(shopId);
         return saleRepository.save(sale);
     }
 
-    public Sale updateSale(Long id, Sale sale) {
-        Sale existing = saleRepository.findById(id).orElse(null);
+    public Sale updateSale(Long shopId, Long id, Sale sale) {
+        Sale existing = saleRepository.findByIdAndShopId(id, shopId).orElse(null);
 
         if (existing == null) {
             return null;
@@ -67,7 +69,7 @@ public class SaleService {
         return saleRepository.save(existing);
     }
 
-    public void deleteSale(Long id) {
-        saleRepository.deleteById(id);
+    public void deleteSale(Long shopId, Long id) {
+        saleRepository.findByIdAndShopId(id, shopId).ifPresent(saleRepository::delete);
     }
 }

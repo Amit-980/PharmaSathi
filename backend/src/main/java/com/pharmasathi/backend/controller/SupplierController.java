@@ -17,30 +17,31 @@ public class SupplierController {
     }
 
     @GetMapping
-    public List<Supplier> getAll() {
-        return service.getAllSuppliers();
+    public List<Supplier> getAll(@RequestAttribute Long shopId) {
+        return service.getAllSuppliers(shopId);
     }
 
     @PostMapping
-    public Supplier save(@RequestBody Supplier supplier) {
-        return service.saveSupplier(supplier);
+    public Supplier save(@RequestAttribute Long shopId, @RequestBody Supplier supplier) {
+        return service.saveSupplier(shopId, supplier);
     }
 
     @GetMapping("/{id}")
-    public Supplier getById(@PathVariable Long id) {
-        return service.getSupplierById(id);
+    public Supplier getById(@RequestAttribute Long shopId, @PathVariable Long id) {
+        return service.getSupplierById(shopId, id);
     }
 
     @PutMapping("/{id}")
     public Supplier update(
+            @RequestAttribute Long shopId,
             @PathVariable Long id,
             @RequestBody Supplier supplier) {
 
-        return service.updateSupplier(id, supplier);
+        return service.updateSupplier(shopId, id, supplier);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteSupplier(id);
+    public void delete(@RequestAttribute Long shopId, @PathVariable Long id) {
+        service.deleteSupplier(shopId, id);
     }
 }

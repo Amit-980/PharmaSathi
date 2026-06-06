@@ -17,30 +17,31 @@ public class SaleController {
     }
 
     @GetMapping
-    public List<Sale> getAll() {
-        return service.getAllSales();
+    public List<Sale> getAll(@RequestAttribute Long shopId) {
+        return service.getAllSales(shopId);
     }
 
     @PostMapping
-    public Sale save(@RequestBody Sale sale) {
-        return service.saveSale(sale);
+    public Sale save(@RequestAttribute Long shopId, @RequestBody Sale sale) {
+        return service.saveSale(shopId, sale);
     }
 
     @GetMapping("/{id}")
-    public Sale getById(@PathVariable Long id) {
-        return service.getSaleById(id);
+    public Sale getById(@RequestAttribute Long shopId, @PathVariable Long id) {
+        return service.getSaleById(shopId, id);
     }
 
     @PutMapping("/{id}")
     public Sale update(
+            @RequestAttribute Long shopId,
             @PathVariable Long id,
             @RequestBody Sale sale) {
 
-        return service.updateSale(id, sale);
+        return service.updateSale(shopId, id, sale);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteSale(id);
+    public void delete(@RequestAttribute Long shopId, @PathVariable Long id) {
+        service.deleteSale(shopId, id);
     }
 }

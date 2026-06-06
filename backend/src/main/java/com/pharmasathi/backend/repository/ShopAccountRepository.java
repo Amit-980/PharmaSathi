@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ShopAccountRepository extends JpaRepository<ShopAccount, Long> {
     Optional<ShopAccount> findFirstByOrderByIdAsc();
     Optional<ShopAccount> findByUsername(String username);
+    boolean existsByUsername(String username);
 }
