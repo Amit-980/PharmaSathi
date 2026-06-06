@@ -11,7 +11,7 @@ import { isDemoMode } from "./api";
 import api from "./api";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(isDemoMode);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [setupLoading, setSetupLoading] = useState(!isDemoMode);
   const [isRegistered, setIsRegistered] = useState(isDemoMode);
   const [shopInfo, setShopInfo] = useState({ shopName: "PharmaSathi", ownerName: "Admin" });
