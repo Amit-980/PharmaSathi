@@ -220,18 +220,18 @@ function App() {
         return <Plans />;
       case "dashboard":
       default:
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentPage} />;
     }
   };
 
   const navItems = [
-    { id: "dashboard", label: "Dashboard", mark: "D", note: "Daily overview" },
-    { id: "medicine", label: "Medicine Master", mark: "M", note: "Catalog, batch and expiry" },
-    { id: "supplier", label: "Suppliers", mark: "S", note: "Vendor contacts" },
-    { id: "purchase", label: "Stock Purchase", mark: "P", note: "Supplier inward entries" },
-    { id: "sale", label: "Billing", mark: "B", note: "Fast sale counter" },
-    { id: "report", label: "Reports", mark: "R", note: "Audit and accounts" },
-    { id: "plans", label: "Subscription", mark: "₹", note: "Plans and renewal" },
+    { id: "dashboard", label: "Aaj ka Hisaab", mark: "D", note: "Dukaan ki poori jankari" },
+    { id: "medicine", label: "Dawai aur Stock", mark: "M", note: "Dawai, batch aur bacha stock" },
+    { id: "supplier", label: "Dawai Bechne Wale", mark: "S", note: "Distributor / supplier ki list" },
+    { id: "purchase", label: "Maal Kharidna", mark: "P", note: "Aaya hua stock darj karein" },
+    { id: "sale", label: "Bill Banayein", mark: "B", note: "Customer ko dawa bechein" },
+    { id: "report", label: "Hisaab aur Reports", mark: "R", note: "Sale, purchase aur GST report" },
+    { id: "plans", label: "Plan aur Renewal", mark: "₹", note: "Software subscription" },
   ];
   const activeNavItem =
     navItems.find((item) => item.id === currentPage) || navItems[0];
@@ -525,7 +525,7 @@ function App() {
         </div>
 
         <nav className="sidebar-nav" aria-label="Main navigation">
-          <p className="sidebar-section-title">Workspace</p>
+          <p className="sidebar-section-title">Dukaan ka Menu</p>
           {navItems.map((item) => (
             <a
               className={`sidebar-link ${
@@ -548,8 +548,8 @@ function App() {
         </nav>
 
         <div className="sidebar-insight">
-          <small>Smart operations</small>
-          <strong>Inventory, billing and compliance. One clear workspace.</strong>
+          <small>Kaam ka sahi kram</small>
+          <strong>Supplier jodein, dawa banayein, maal kharidein, phir bill banayein.</strong>
         </div>
 
         <div className="sidebar-footer">

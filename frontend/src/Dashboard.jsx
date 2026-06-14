@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api from "./api";
 
 
-function Dashboard() {
+function Dashboard({ onNavigate }) {
   const [dashboard, setDashboard] = useState({
     totalMedicines: 0,
     totalSuppliers: 0,
@@ -224,11 +224,30 @@ function Dashboard() {
 
       {error && <div className="dashboard-error">{error}</div>}
 
+      <section className="shop-guide">
+        <div className="shop-guide-heading">
+          <div>
+            <span>Shuru kahan se karein?</span>
+            <h2>Dukaan chalane ka seedha tarika</h2>
+            <p>Seller aapki dukaan hai. Supplier woh distributor hai jisse aap dawa kharidte hain. Customer woh hai jise aap dawa bechte hain.</p>
+          </div>
+          <button type="button" onClick={() => onNavigate("sale")}>
+            <i className="bi bi-receipt"></i> Abhi Bill Banayein
+          </button>
+        </div>
+        <div className="shop-steps">
+          <GuideStep number="1" title="Supplier jodein" text="Jis distributor se dawa lete hain, uski detail save karein." action="supplier" onNavigate={onNavigate} />
+          <GuideStep number="2" title="Dawai jodein" text="Dawai ka naam, batch, expiry aur rate darj karein." action="medicine" onNavigate={onNavigate} />
+          <GuideStep number="3" title="Maal kharidein" text="Supplier se aaya quantity darj karte hi stock badhega." action="purchase" onNavigate={onNavigate} />
+          <GuideStep number="4" title="Customer ka bill" text="Dawai aur quantity chunein; sale hote hi stock ghatega." action="sale" onNavigate={onNavigate} />
+        </div>
+      </section>
+
       <section className="dashboard-kpis" aria-label="Key metrics">
-        <MetricCard label="Today's Sales" value={formatCurrency(metrics.todayRevenue)} note={`${metrics.todayBills} bills today`} tone="blue" icon="₹" />
-        <MetricCard label="Total Revenue" value={formatCurrency(metrics.revenue)} note={`${dashboard.totalSales} completed bills`} tone="green" icon="R" />
-        <MetricCard label="Gross Position" value={formatCurrency(metrics.profit)} note={`${metrics.margin}% estimated margin`} tone="violet" icon="P" />
-        <MetricCard label="Inventory Value" value={formatCurrency(metrics.inventoryValue)} note={`${metrics.totalStock} units available`} tone="orange" icon="I" />
+        <MetricCard label="Aaj ki Bikri" value={formatCurrency(metrics.todayRevenue)} note={`Aaj ke ${metrics.todayBills} bill`} tone="blue" icon="₹" />
+        <MetricCard label="Kul Bikri" value={formatCurrency(metrics.revenue)} note={`${dashboard.totalSales} bill ban chuke`} tone="green" icon="R" />
+        <MetricCard label="Andazee Munafa" value={formatCurrency(metrics.profit)} note={`${metrics.margin}% margin`} tone="violet" icon="P" />
+        <MetricCard label="Abhi Bacha Stock" value={`${metrics.totalStock} units`} note={`${formatCurrency(metrics.inventoryValue)} ki lagat`} tone="orange" icon="I" />
       </section>
 
       <section className="dashboard-grid">
@@ -379,6 +398,16 @@ function Dashboard() {
         </div>
       </section>
     </main>
+  );
+}
+
+function GuideStep({ number, title, text, action, onNavigate }) {
+  return (
+    <button className="shop-step" type="button" onClick={() => onNavigate(action)}>
+      <b>{number}</b>
+      <span><strong>{title}</strong><small>{text}</small></span>
+      <i className="bi bi-arrow-right"></i>
+    </button>
   );
 }
 
