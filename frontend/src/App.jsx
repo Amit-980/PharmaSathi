@@ -225,13 +225,13 @@ function App() {
   };
 
   const navItems = [
-    { id: "dashboard", label: "Aaj ka Hisaab", mark: "D", note: "Dukaan ki poori jankari" },
+    { id: "dashboard", label: "Dashboard", mark: "D", note: "Business overview" },
     { id: "medicine", label: "Medicine Catalog", mark: "M", note: "Dawai, batch, expiry aur rate" },
-    { id: "supplier", label: "Dawai Bechne Wale", mark: "S", note: "Distributor / supplier ki list" },
-    { id: "purchase", label: "Maal Kharidna", mark: "P", note: "Aaya hua stock darj karein" },
-    { id: "sale", label: "Bill Banayein", mark: "B", note: "Customer ko dawa bechein" },
-    { id: "report", label: "Hisaab aur Reports", mark: "R", note: "Sale, purchase aur GST report" },
-    { id: "plans", label: "Plan aur Renewal", mark: "₹", note: "Software subscription" },
+    { id: "supplier", label: "Suppliers", mark: "S", note: "Distributor management" },
+    { id: "purchase", label: "Purchases", mark: "P", note: "Stock inward entries" },
+    { id: "sale", label: "Sales & Billing", mark: "B", note: "Customer invoices" },
+    { id: "report", label: "Reports", mark: "R", note: "Sales, purchase and GST" },
+    { id: "plans", label: "Subscription", mark: "₹", note: "Plan and renewal" },
   ];
   const activeNavItem =
     navItems.find((item) => item.id === currentPage) || navItems[0];
@@ -525,7 +525,7 @@ function App() {
         </div>
 
         <nav className="sidebar-nav" aria-label="Main navigation">
-          <p className="sidebar-section-title">Dukaan ka Menu</p>
+          <p className="sidebar-section-title">Workspace</p>
           {navItems.map((item) => (
             <a
               className={`sidebar-link ${

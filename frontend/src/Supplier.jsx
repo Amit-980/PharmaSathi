@@ -119,16 +119,15 @@ function Supplier({ onNavigate }) {
   return (
     <div className="supplier-container module-page supplier-page py-5">
       <div className="container-lg">
+        <div className="module-open-guide">
+          <i className="bi bi-truck"></i>
+          <div><small>SUPPLIERS</small><strong>Yahan un distributors ko jodein jinse aap dawa kharidte hain</strong><span>Supplier customer nahi hota. Yeh woh company ya wholesaler hai jo aapki pharmacy ko maal deta hai, jaise ABC Pharma Distributor.</span></div>
+        </div>
         <ShopFlow active="supplier" onNavigate={onNavigate} />
         <div className="module-header mb-5">
-          <h1 className="display-5 fw-bold text-white mb-2">Dawai Bechne Wale (Suppliers)</h1>
-          <p className="text-white-50">Supplier woh distributor ya wholesaler hai jisse aap apni dukaan ke liye dawa kharidte hain</p>
+          <h1 className="display-5 fw-bold text-white mb-2">Suppliers</h1>
+          <p className="text-white-50">Manage distributors and wholesalers who supply medicines to your pharmacy</p>
           <span className="module-chip">{suppliers.length} suppliers</span>
-        </div>
-
-        <div className="module-purpose-note">
-          <i className="bi bi-truck"></i>
-          <div><strong>Sabse pehla kaam: Supplier jodein</strong><span>Udaharan: ABC Pharma Distributor. Yeh customer nahi hai; yeh aapko maal dene wala vyakti ya company hai.</span></div>
         </div>
 
         <div className="module-insight-grid module-insight-grid-three">

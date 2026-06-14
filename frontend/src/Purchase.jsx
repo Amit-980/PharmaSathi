@@ -140,13 +140,17 @@ function Purchase({ onNavigate }) {
   return (
     <div className="purchase-container module-page purchase-page min-vh-100 py-5">
       <div className="container-fluid">
+        <div className="module-open-guide">
+          <i className="bi bi-box-arrow-in-down"></i>
+          <div><small>PURCHASES</small><strong>Supplier se naya maal aaye to uski entry yahan karein</strong><span>Medicine, supplier, invoice, quantity aur purchase rate select karein. Save karte hi medicine ka available stock badh jayega.</span></div>
+        </div>
         <ShopFlow active="purchase" onNavigate={onNavigate} />
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-box-arrow-in-down"></i> Supplier se Aaya Maal
+            <i className="bi bi-box-arrow-in-down"></i> Purchases
           </h1>
-          <p className="text-white-50 fs-5">Jo dawa kharidkar dukaan mein aayi hai, uski quantity yahan darj karein</p>
+          <p className="text-white-50 fs-5">Record supplier invoices and received stock quantities</p>
           <span className="module-chip">{purchases.length} inward entries</span>
         </div>
 
@@ -154,11 +158,6 @@ function Purchase({ onNavigate }) {
           <div><span>Total Purchase Value</span><strong>₹{totalPurchaseValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></div>
           <div><span>Stock Received</span><strong>{totalPurchasedUnits} units</strong></div>
           <div><span>Latest Inward</span><strong>{latestPurchaseDate || "No purchase"}</strong></div>
-        </div>
-
-        <div className="module-purpose-note">
-          <i className="bi bi-box-seam"></i>
-          <div><strong>Is screen ka kaam: stock badhana (+)</strong><span>Pehle se bani dawa aur supplier chunein. Quantity save karte hi available stock apne-aap badhega.</span></div>
         </div>
 
         {successMessage && (
@@ -192,7 +191,7 @@ function Purchase({ onNavigate }) {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  Aaya Hua Maal Stock Mein Jodein
+                  Record Stock Receipt
                 </h5>
               </div>
               <div className="card-body p-4">
@@ -310,7 +309,7 @@ function Purchase({ onNavigate }) {
                       disabled={loading}
                     >
                       <i className="bi bi-check-lg me-2"></i>
-                      {loading ? "Adding Stock..." : "Add Stock Purchase"}
+                      {loading ? "Updating stock..." : "Save Purchase & Increase Stock"}
                     </button>
                   </div>
                 </form>

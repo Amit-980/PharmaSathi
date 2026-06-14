@@ -263,19 +263,18 @@ function Sale({ onNavigate }) {
   return (
     <div className="sale-container module-page sale-page min-vh-100 py-5">
       <div className="container-fluid">
+        <div className="module-open-guide">
+          <i className="bi bi-receipt"></i>
+          <div><small>SALES & BILLING</small><strong>Customer ko dawa bechte samay bill yahan banayein</strong><span>Customer, medicine, quantity aur selling rate enter karein. Invoice banega aur bechi gayi quantity stock se automatically kam ho jayegi.</span></div>
+        </div>
         <ShopFlow active="sale" onNavigate={onNavigate} />
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-cart-check"></i> Customer ka Bill Banayein
+            <i className="bi bi-cart-check"></i> Sales & Billing
           </h1>
-          <p className="text-white-50 fs-5">Customer, dawa, quantity aur rate chunein; bill banega aur stock ghatega</p>
+          <p className="text-white-50 fs-5">Create customer invoices and automatically update available stock</p>
           <span className="module-chip">{sales.length} sales</span>
-        </div>
-
-        <div className="module-purpose-note">
-          <i className="bi bi-receipt"></i>
-          <div><strong>Is screen ka kaam: stock ghatana (-)</strong><span>Customer ko dawa dete waqt yahan bill banayein. Sale save hote hi utni quantity stock se kam ho jayegi.</span></div>
         </div>
 
         <div className="module-insight-grid module-insight-grid-three">
@@ -446,7 +445,7 @@ function Sale({ onNavigate }) {
                       disabled={loading}
                     >
                       <i className="bi bi-check-lg me-2"></i>
-                      {loading ? "Bill ban raha hai..." : "Bill Banayein aur Stock Ghatayein"}
+                      {loading ? "Creating invoice..." : "Create Invoice"}
                     </button>
                   </div>
                 </form>

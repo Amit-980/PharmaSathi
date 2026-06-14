@@ -117,7 +117,7 @@ function Medicine({ onNavigate }) {
       unit: medicine.unit || "Strip",
       packSize: medicine.packSize ?? 1,
       expiryDate: medicine.expiryDate || "",
-      purchasePrice: medicine.purchasePrice ?? "",
+      purchasePrice: medicine.purchasePrice ?? 0,
       wholesalePrice: medicine.wholesalePrice ?? "",
       mrp: medicine.mrp,
       gstRate: String(medicine.gstRate ?? 5),
@@ -175,13 +175,17 @@ function Medicine({ onNavigate }) {
   return (
     <div className="medicine-container module-page medicine-page min-vh-100 py-5">
       <div className="container-fluid">
+        <div className="module-open-guide">
+          <i className="bi bi-capsule"></i>
+          <div><small>MEDICINE CATALOG</small><strong>Yahan dawa ki detail aur pehli baar ka stock bharein</strong><span>Medicine name, batch, expiry, MRP, GST aur jo stock abhi dukaan mein hai woh sirf first setup par enter karein. Baad mein aane wala stock Purchases mein jayega.</span></div>
+        </div>
         <ShopFlow active="medicine" onNavigate={onNavigate} />
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
             <i className="bi bi-capsule"></i> Medicine Catalog
           </h1>
-          <p className="text-white-50 fs-5">Yahan sirf dawa ka naam, batch, expiry aur rate save hota hai</p>
+          <p className="text-white-50 fs-5">Create medicine details and enter opening stock during first-time setup</p>
           <span className="module-chip">{medicines.length} medicines</span>
         </div>
 
@@ -190,11 +194,6 @@ function Medicine({ onNavigate }) {
           <div className={lowStockCount ? "warning" : ""}><span>Low Stock</span><strong>{lowStockCount} medicines</strong></div>
           <div className={nearExpiryCount ? "danger" : ""}><span>Near Expiry (90 days)</span><strong>{nearExpiryCount} batches</strong></div>
           <div><span>MRP Stock Value</span><strong>₹{stockValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</strong></div>
-        </div>
-
-        <div className="module-purpose-note">
-          <i className="bi bi-info-circle"></i>
-          <div><strong>Is screen ka kaam</strong><span>Nayi dawa ko list mein banayein. Supplier se aaya maal yahan dobara na jodein; uske liye Purchase screen use karein.</span></div>
         </div>
 
         {successMessage && (
@@ -228,7 +227,7 @@ function Medicine({ onNavigate }) {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  {editingId ? "Dawai ki Detail Badlein" : "Nayi Dawai List Mein Jodein"}
+                  {editingId ? "Edit Medicine Details" : "Add Medicine to Catalog"}
                 </h5>
               </div>
               <div className="card-body p-4">
@@ -330,7 +329,7 @@ function Medicine({ onNavigate }) {
 
                   <div className="row g-3 mb-4">
                     <div className="col-md-6">
-                      <label className="form-label text-white fw-600">Last Purchase Rate</label>
+                      <label className="form-label text-white fw-600">Opening Purchase Rate</label>
                       <input type="number" min="0" step="0.01" className="form-control" name="purchasePrice" value={formData.purchasePrice} onChange={handleChange} />
                     </div>
                     <div className="col-md-6">
@@ -359,7 +358,7 @@ function Medicine({ onNavigate }) {
 
                   <div className="mb-4">
                     <label className="form-label text-white fw-600">
-                      <i className="bi bi-boxes me-2"></i>Stock Quantity
+                      <i className="bi bi-boxes me-2"></i>Opening Stock Quantity
                     </label>
                     <input
                       type="number"
@@ -371,10 +370,11 @@ function Medicine({ onNavigate }) {
                       placeholder="0"
                       required
                     />
+                    <small className="text-white-50 d-block mt-2">Use only for stock already available when setting up the medicine.</small>
                   </div>
 
                   <div className="mb-4">
-                    <label className="form-label text-white fw-600">Reorder Level</label>
+                    <label className="form-label text-white fw-600">Low Stock Alert Level</label>
                     <input type="number" min="0" className="form-control form-control-lg" name="minimumStock" value={formData.minimumStock} onChange={handleChange} required />
                   </div>
 
@@ -412,7 +412,7 @@ function Medicine({ onNavigate }) {
               <div className="card-header bg-light border-bottom p-4">
                 <h5 className="mb-0 fw-bold">
                   <i className="bi bi-table me-2 text-primary"></i>
-                  Medicines Inventory
+                  Medicine Catalog
                 </h5>
                 <small className="text-muted">Total: {medicines.length} medicines</small>
               </div>

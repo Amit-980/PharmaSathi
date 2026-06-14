@@ -3,29 +3,29 @@ const steps = [
     id: "supplier",
     number: "1",
     title: "Supplier",
-    meaning: "Jisse aap dawa kharidte hain",
-    effect: "Stock par koi asar nahi",
+    meaning: "Manage distributors and vendors",
+    effect: "No stock change",
   },
   {
     id: "medicine",
     number: "2",
     title: "Medicine",
-    meaning: "Dawai ka naam aur batch banayein",
-    effect: "Item list mein judta hai",
+    meaning: "Create medicine and batch records",
+    effect: "Adds an item to the catalog",
   },
   {
     id: "purchase",
     number: "3",
     title: "Purchase",
-    meaning: "Supplier se aaya maal darj karein",
-    effect: "Stock badhta hai (+)",
+    meaning: "Record stock received from suppliers",
+    effect: "Increases stock (+)",
   },
   {
     id: "sale",
     number: "4",
     title: "Billing",
-    meaning: "Customer ko dawa bechein",
-    effect: "Stock ghatta hai (-)",
+    meaning: "Create customer invoices",
+    effect: "Decreases stock (-)",
   },
 ];
 
@@ -33,8 +33,8 @@ function ShopFlow({ active, onNavigate }) {
   return (
     <section className="module-flow" aria-label="Dukaan ka kaam">
       <div className="module-flow-title">
-        <strong>Ye 4 alag kaam hain</strong>
-        <span>Baayein se daayein isi kram mein use karein</span>
+        <strong>Pharmacy workflow</strong>
+        <span>Follow these modules from left to right</span>
       </div>
       <div className="module-flow-steps">
         {steps.map((step) => (
