@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.Map;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 @Service
 public class ShopAccountService {
@@ -65,7 +68,7 @@ public class ShopAccountService {
         account.setSubscriptionEndDate(LocalDate.now().plusDays(30));
         account.setUsername(username);
         account.setPasswordSalt(salt);
-        account.setPasswordHash(hash(request.password(), salt));
+        account.setPasswordHash(hashPassword(request.password(), salt));
         account.setRegisteredAt(LocalDateTime.now());
         return repository.save(account);
     }
@@ -82,11 +85,10 @@ public class ShopAccountService {
             throw new IllegalArgumentException("Subscription expired. Please renew your plan");
         }
 
-        if (!MessageDigest.isEqual(
-                account.getPasswordHash().getBytes(StandardCharsets.UTF_8),
-                hash(request.password(), account.getPasswordSalt()).getBytes(StandardCharsets.UTF_8))) {
+        if (!passwordMatches(request.password(), account)) {
             throw new IllegalArgumentException("Invalid username or password");
         }
+        migrateLegacyPassword(request.password(), account);
 
         return Map.ofEntries(
                 Map.entry("authenticated", true),
@@ -115,17 +117,43 @@ public class ShopAccountService {
                 || request.phone() == null || !request.phone().matches("\\d{10}")
                 || request.plan() == null || !request.plan().matches("Starter|Business|Pro")
                 || request.username() == null || request.username().trim().length() < 4
-                || request.password() == null || request.password().length() < 6) {
+                || request.password() == null || request.password().length() < 8) {
             throw new IllegalArgumentException("Please enter valid registration details");
         }
     }
 
-    private String hash(String password, String salt) {
+    private String hashPassword(String password, String salt) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(
-                    digest.digest((salt + password).getBytes(StandardCharsets.UTF_8))
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), 210_000, 256);
+            return "pbkdf2$210000$" + HexFormat.of().formatHex(
+                    SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded()
             );
+        } catch (Exception exception) {
+            throw new IllegalStateException("Password security could not be initialized", exception);
+        }
+    }
+
+    private boolean passwordMatches(String password, ShopAccount account) {
+        String stored = account.getPasswordHash();
+        String candidate = stored != null && stored.startsWith("pbkdf2$")
+                ? hashPassword(password, account.getPasswordSalt())
+                : legacyHash(password, account.getPasswordSalt());
+        return MessageDigest.isEqual(
+                stored.getBytes(StandardCharsets.UTF_8),
+                candidate.getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
+    private void migrateLegacyPassword(String password, ShopAccount account) {
+        if (account.getPasswordHash().startsWith("pbkdf2$")) return;
+        account.setPasswordHash(hashPassword(password, account.getPasswordSalt()));
+        repository.save(account);
+    }
+
+    private String legacyHash(String password, String salt) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest((salt + password).getBytes(StandardCharsets.UTF_8)));
         } catch (Exception exception) {
             throw new IllegalStateException("Password security could not be initialized", exception);
         }

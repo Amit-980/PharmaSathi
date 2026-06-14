@@ -4,6 +4,7 @@ import com.pharmasathi.backend.dto.LoginRequest;
 import com.pharmasathi.backend.dto.RegisterShopRequest;
 import com.pharmasathi.backend.entity.ShopAccount;
 import com.pharmasathi.backend.service.ShopAccountService;
+import com.pharmasathi.backend.service.AuthSessionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +15,11 @@ import java.util.Map;
 public class SetupController {
 
     private final ShopAccountService service;
+    private final AuthSessionService sessions;
 
-    public SetupController(ShopAccountService service) {
+    public SetupController(ShopAccountService service, AuthSessionService sessions) {
         this.service = service;
+        this.sessions = sessions;
     }
 
     @GetMapping("/status")
@@ -46,5 +49,11 @@ public class SetupController {
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.status(401).body(Map.of("message", exception.getMessage()));
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        sessions.revoke(authorization);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,0 +1,9 @@
+.git
+.idea
+.vscode
+**/node_modules
+**/dist
+**/target
+backups
+installer-input
+installer-output

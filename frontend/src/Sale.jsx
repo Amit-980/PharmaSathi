@@ -3,10 +3,15 @@ import { createPortal } from "react-dom";
 import api from "./api";
 
 const emptySaleForm = {
+  customerName: "",
   customerPhone: "",
+  customerGstin: "",
   medicineId: "",
   quantity: "",
   sellingPrice: "",
+  discountPercent: "0",
+  paymentMode: "CASH",
+  paymentStatus: "PAID",
   saleDate: new Date().toISOString().split("T")[0],
 };
 
@@ -110,10 +115,15 @@ function Sale() {
       }
 
       const salePayload = {
+        customerName: formData.customerName.trim(),
         customerPhone: formData.customerPhone.trim(),
+        customerGstin: formData.customerGstin.trim(),
         medicineId: parseInt(formData.medicineId),
         quantity: parseInt(formData.quantity),
         sellingPrice: parseFloat(formData.sellingPrice),
+        discountPercent: parseFloat(formData.discountPercent || 0),
+        paymentMode: formData.paymentMode,
+        paymentStatus: formData.paymentStatus,
         saleDate: formData.saleDate,
       };
 
@@ -167,7 +177,9 @@ function Sale() {
   const createBill = ({ sale, medicine, customerPhone = "" }) => {
     const quantity = Number(sale.quantity || 0);
     const rate = Number(sale.sellingPrice || 0);
-    const total = quantity * rate;
+    const gross = quantity * rate;
+    const discountPercent = Number(sale.discountPercent || 0);
+    const total = gross * (1 - discountPercent / 100);
     const gstRate = Number(medicine?.gstRate ?? 5);
     const taxableAmount =
       gstRate > 0 ? (total * 100) / (100 + gstRate) : total;
@@ -176,15 +188,18 @@ function Sale() {
     const sgstAmount = gstAmount / 2;
 
     return {
-      billNo: `PS-${String(sale.id || "DRAFT").padStart(5, "0")}`,
+      billNo: sale.invoiceNumber || `PS-${String(sale.id || "DRAFT").padStart(5, "0")}`,
       date: sale.saleDate,
+      customerName: sale.customerName || "-",
       customerPhone: sale.customerPhone || customerPhone || "-",
+      customerGstin: sale.customerGstin || "-",
       medicineName: medicine?.name || getMedicineName(sale.medicineId),
       brand: medicine?.brand || "-",
       batchNo: medicine?.batchNo || "-",
       expiryDate: medicine?.expiryDate || "-",
       quantity,
       rate,
+      discountPercent,
       gstRate,
       taxableAmount,
       gstAmount,
@@ -299,6 +314,10 @@ function Sale() {
               <div className="card-body p-4">
                 <form onSubmit={handleSubmit}>
                   <div className="mb-4">
+                    <label className="form-label text-white fw-600">Customer / Firm Name</label>
+                    <input className="form-control form-control-lg" name="customerName" value={formData.customerName} onChange={handleChange} placeholder="Retailer or firm name" required />
+                  </div>
+                  <div className="mb-4">
                     <label className="form-label text-white fw-600">
                       <i className="bi bi-phone me-2"></i>Customer Phone
                     </label>
@@ -320,6 +339,11 @@ function Sale() {
                   </div>
 
                   <div className="mb-4">
+                    <label className="form-label text-white fw-600">Customer GSTIN</label>
+                    <input className="form-control form-control-lg" name="customerGstin" value={formData.customerGstin} onChange={handleChange} placeholder="Optional for unregistered customer" />
+                  </div>
+
+                  <div className="mb-4">
                     <label className="form-label text-white fw-600">
                       <i className="bi bi-pill me-2"></i>Medicine
                     </label>
@@ -338,6 +362,27 @@ function Sale() {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="row g-3 mb-4">
+                    <div className="col-4">
+                      <label className="form-label text-white fw-600">Discount %</label>
+                      <input type="number" min="0" max="100" step="0.01" className="form-control" name="discountPercent" value={formData.discountPercent} onChange={handleChange} />
+                    </div>
+                    <div className="col-4">
+                      <label className="form-label text-white fw-600">Mode</label>
+                      <select className="form-select" name="paymentMode" value={formData.paymentMode} onChange={handleChange}>
+                        {["CASH", "UPI", "CARD", "BANK", "CREDIT"].map((mode) => <option key={mode}>{mode}</option>)}
+                      </select>
+                    </div>
+                    <div className="col-4">
+                      <label className="form-label text-white fw-600">Status</label>
+                      <select className="form-select" name="paymentStatus" value={formData.paymentStatus} onChange={handleChange}>
+                        <option value="PAID">Paid</option>
+                        <option value="PARTIAL">Partial</option>
+                        <option value="CREDIT">Credit</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="mb-4">

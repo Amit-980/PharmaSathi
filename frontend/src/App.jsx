@@ -188,7 +188,14 @@ function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (!isDemoMode) {
+      try {
+        await api.post("/setup/logout");
+      } catch {
+        // Local state is still cleared if the server is unavailable.
+      }
+    }
     sessionStorage.removeItem("pharmasathi-auth-token");
     setIsLoggedIn(false);
     setCurrentPage("dashboard");
@@ -510,7 +517,7 @@ function App() {
           <span className="brand-mark">PS</span>
           <div>
             <strong>{shopInfo.shopName}</strong>
-            <small>Retail pharmacy suite</small>
+            <small>Wholesale pharmacy OS</small>
           </div>
         </div>
 
@@ -538,8 +545,8 @@ function App() {
         </nav>
 
         <div className="sidebar-insight">
-          <small>Shopkeeper focus</small>
-          <strong>Stock, expiry, purchase and billing in one flow.</strong>
+          <small>Smart operations</small>
+          <strong>Inventory, billing and compliance. One clear workspace.</strong>
         </div>
 
         <div className="sidebar-footer">
@@ -571,7 +578,10 @@ function App() {
             <p>Current module</p>
             <h2>{activeNavItem.label}</h2>
           </div>
-          <span>{activeNavItem.note}</span>
+          <div className="topbar-meta">
+            <span className="topbar-live"><i />System live</span>
+            <span>{activeNavItem.note}</span>
+          </div>
         </header>
         {renderPage()}
       </main>

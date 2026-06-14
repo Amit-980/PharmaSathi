@@ -17,6 +17,10 @@ public class Supplier {
     private String phone;
     private String email;
     private String address;
+    private String gstin;
+    private String drugLicense;
+    private Integer creditDays = 0;
+    private Double openingBalance = 0.0;
 
     public Supplier() {
     }
@@ -68,4 +72,13 @@ public class Supplier {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    public String getGstin() { return gstin; }
+    public void setGstin(String gstin) { this.gstin = gstin; }
+    public String getDrugLicense() { return drugLicense; }
+    public void setDrugLicense(String drugLicense) { this.drugLicense = drugLicense; }
+    public Integer getCreditDays() { return creditDays; }
+    public void setCreditDays(Integer creditDays) { this.creditDays = creditDays; }
+    public Double getOpeningBalance() { return openingBalance; }
+    public void setOpeningBalance(Double openingBalance) { this.openingBalance = openingBalance; }
 }

@@ -6,7 +6,7 @@ const isDemoMode =
 
 const demoSeed = {
   medicines: [
-    { id: 1, name: "Paracetamol 500", brand: "Dolo", batchNo: "DL2408", expiryDate: "2027-08-31", mrp: 35, gstRate: 5, stockQuantity: 86 },
+    { id: 1, name: "Paracetamol 500", brand: "Dolo", sku: "MED-001", barcode: "890000000001", hsnCode: "3004", unit: "Strip", packSize: 10, batchNo: "DL2408", expiryDate: "2027-08-31", purchasePrice: 24, wholesalePrice: 30, mrp: 35, gstRate: 5, stockQuantity: 86, minimumStock: 20 },
     { id: 2, name: "Azithromycin 500", brand: "Azee", batchNo: "AZ2511", expiryDate: "2027-11-30", mrp: 125, gstRate: 5, stockQuantity: 24 },
     { id: 3, name: "ORS Sachet", brand: "Electral", batchNo: "OR2504", expiryDate: "2027-04-30", mrp: 24, gstRate: 5, stockQuantity: 9 },
     { id: 4, name: "Vitamin D3", brand: "Uprise", batchNo: "UP2509", expiryDate: "2027-09-30", mrp: 145, gstRate: 5, stockQuantity: 0 },
@@ -89,6 +89,17 @@ const demoAdapter = async (config) => {
   }
 
   if (method === "delete") {
+    const deleted = data[resource].find((item) => item.id === id);
+    if (resource === "sales" && deleted) {
+      const medicine = data.medicines.find((entry) => entry.id === deleted.medicineId);
+      if (medicine) medicine.stockQuantity += Number(deleted.quantity || 0);
+    }
+    if (resource === "purchases" && deleted) {
+      const medicine = data.medicines.find((entry) => entry.id === deleted.medicineId);
+      if (medicine && medicine.stockQuantity >= Number(deleted.quantity || 0)) {
+        medicine.stockQuantity -= Number(deleted.quantity || 0);
+      }
+    }
     data[resource] = data[resource].filter((item) => item.id !== id);
     writeDemoData(data);
     return response(config, null, 204);

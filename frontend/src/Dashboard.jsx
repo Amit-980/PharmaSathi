@@ -16,6 +16,8 @@ function Dashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // The loader is intentionally invoked once when the dashboard mounts.
+    // eslint-disable-next-line react-hooks/immutability
     loadAllData();
   }, []);
 
@@ -140,9 +142,10 @@ function Dashboard() {
     <main className="dashboard-page">
       <section className="dashboard-hero">
         <div>
-          <p className="eyebrow">Pharmacy overview</p>
+          <span className="hero-status"><i /> Live business overview</span>
+          <h1>Your pharmacy, at a glance.</h1>
           <p className="hero-copy">
-            Aaj ka inventory, sales aur purchase status simple cards mein.
+            Sales, inventory health aur purchase activity ka clear operational view.
           </p>
         </div>
         <div className="hero-actions">

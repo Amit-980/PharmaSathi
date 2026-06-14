@@ -6,11 +6,19 @@ function Medicine() {
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
+    sku: "",
+    barcode: "",
+    hsnCode: "",
     batchNo: "",
+    unit: "Strip",
+    packSize: "1",
     expiryDate: "",
+    purchasePrice: "",
+    wholesalePrice: "",
     mrp: "",
     gstRate: "5",
     stockQuantity: "",
+    minimumStock: "10",
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,11 +57,19 @@ function Medicine() {
       const data = {
         name: formData.name,
         brand: formData.brand,
+        sku: formData.sku,
+        barcode: formData.barcode,
+        hsnCode: formData.hsnCode,
         batchNo: formData.batchNo,
+        unit: formData.unit,
+        packSize: parseInt(formData.packSize),
         expiryDate: formData.expiryDate || null,
+        purchasePrice: parseFloat(formData.purchasePrice || 0),
+        wholesalePrice: parseFloat(formData.wholesalePrice || 0),
         mrp: parseFloat(formData.mrp),
         gstRate: parseFloat(formData.gstRate),
         stockQuantity: parseInt(formData.stockQuantity),
+        minimumStock: parseInt(formData.minimumStock),
       };
 
       if (editingId) {
@@ -68,11 +84,15 @@ function Medicine() {
       setFormData({
         name: "",
         brand: "",
+        sku: "", barcode: "", hsnCode: "",
         batchNo: "",
+        unit: "Strip", packSize: "1",
         expiryDate: "",
+        purchasePrice: "", wholesalePrice: "",
         mrp: "",
         gstRate: "5",
         stockQuantity: "",
+        minimumStock: "10",
       });
       loadMedicines();
     } catch (error) {
@@ -89,11 +109,19 @@ function Medicine() {
     setFormData({
       name: medicine.name,
       brand: medicine.brand,
+      sku: medicine.sku || "",
+      barcode: medicine.barcode || "",
+      hsnCode: medicine.hsnCode || "",
       batchNo: medicine.batchNo,
+      unit: medicine.unit || "Strip",
+      packSize: medicine.packSize ?? 1,
       expiryDate: medicine.expiryDate || "",
+      purchasePrice: medicine.purchasePrice ?? "",
+      wholesalePrice: medicine.wholesalePrice ?? "",
       mrp: medicine.mrp,
       gstRate: String(medicine.gstRate ?? 5),
       stockQuantity: medicine.stockQuantity,
+      minimumStock: medicine.minimumStock ?? 10,
     });
   };
 
@@ -102,11 +130,15 @@ function Medicine() {
     setFormData({
       name: "",
       brand: "",
+      sku: "", barcode: "", hsnCode: "",
       batchNo: "",
+      unit: "Strip", packSize: "1",
       expiryDate: "",
+      purchasePrice: "", wholesalePrice: "",
       mrp: "",
       gstRate: "5",
       stockQuantity: "",
+      minimumStock: "10",
     });
   };
 
@@ -126,7 +158,7 @@ function Medicine() {
   const nearExpiryLimit = new Date(today);
   nearExpiryLimit.setDate(today.getDate() + 90);
   const lowStockCount = medicines.filter(
-    (medicine) => Number(medicine.stockQuantity || 0) <= 10
+    (medicine) => Number(medicine.stockQuantity || 0) <= Number(medicine.minimumStock ?? 10)
   ).length;
   const nearExpiryCount = medicines.filter((medicine) => {
     if (!medicine.expiryDate) return false;
@@ -238,6 +270,32 @@ function Medicine() {
                     />
                   </div>
 
+                  <div className="row g-3 mb-4">
+                    {[
+                      ["sku", "SKU / Item Code"],
+                      ["barcode", "Barcode"],
+                      ["hsnCode", "HSN Code"],
+                    ].map(([name, label]) => (
+                      <div className="col-md-4" key={name}>
+                        <label className="form-label text-white fw-600">{label}</label>
+                        <input className="form-control" name={name} value={formData[name]} onChange={handleChange} />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="row g-3 mb-4">
+                    <div className="col-md-6">
+                      <label className="form-label text-white fw-600">Sale Unit</label>
+                      <select className="form-select" name="unit" value={formData.unit} onChange={handleChange}>
+                        {["Strip", "Box", "Bottle", "Piece", "Tube", "Vial", "Sachet"].map((unit) => <option key={unit}>{unit}</option>)}
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label text-white fw-600">Units per Pack</label>
+                      <input type="number" min="1" className="form-control" name="packSize" value={formData.packSize} onChange={handleChange} required />
+                    </div>
+                  </div>
+
                   <div className="mb-4">
                     <label className="form-label text-white fw-600">
                       <i className="bi bi-calendar me-2"></i>Expiry Date
@@ -266,6 +324,17 @@ function Medicine() {
                       placeholder="0.00"
                       required
                     />
+                  </div>
+
+                  <div className="row g-3 mb-4">
+                    <div className="col-md-6">
+                      <label className="form-label text-white fw-600">Last Purchase Rate</label>
+                      <input type="number" min="0" step="0.01" className="form-control" name="purchasePrice" value={formData.purchasePrice} onChange={handleChange} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label text-white fw-600">Wholesale Rate</label>
+                      <input type="number" min="0" step="0.01" className="form-control" name="wholesalePrice" value={formData.wholesalePrice} onChange={handleChange} />
+                    </div>
                   </div>
 
                   <div className="mb-4">
@@ -300,6 +369,11 @@ function Medicine() {
                       placeholder="0"
                       required
                     />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="form-label text-white fw-600">Reorder Level</label>
+                    <input type="number" min="0" className="form-control form-control-lg" name="minimumStock" value={formData.minimumStock} onChange={handleChange} required />
                   </div>
 
                   <div className="d-grid gap-2">

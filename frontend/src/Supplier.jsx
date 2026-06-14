@@ -8,6 +8,10 @@ function Supplier() {
     phone: "",
     email: "",
     address: "",
+    gstin: "",
+    drugLicense: "",
+    creditDays: "0",
+    openingBalance: "0",
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -57,6 +61,7 @@ function Supplier() {
         phone: "",
         email: "",
         address: "",
+        gstin: "", drugLicense: "", creditDays: "0", openingBalance: "0",
       });
       loadSuppliers();
     } catch (error) {
@@ -75,6 +80,10 @@ function Supplier() {
       phone: supplier.phone,
       email: supplier.email,
       address: supplier.address,
+      gstin: supplier.gstin || "",
+      drugLicense: supplier.drugLicense || "",
+      creditDays: supplier.creditDays ?? 0,
+      openingBalance: supplier.openingBalance ?? 0,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -86,6 +95,7 @@ function Supplier() {
       phone: "",
       email: "",
       address: "",
+      gstin: "", drugLicense: "", creditDays: "0", openingBalance: "0",
     });
   };
 
@@ -217,6 +227,25 @@ function Supplier() {
                     ></textarea>
                   </div>
 
+                  <div className="row g-3 mb-4">
+                    <div className="col-6">
+                      <label className="form-label fw-600">GSTIN</label>
+                      <input className="form-control" name="gstin" value={formData.gstin} onChange={handleChange} />
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-600">Drug Licence</label>
+                      <input className="form-control" name="drugLicense" value={formData.drugLicense} onChange={handleChange} />
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-600">Credit Days</label>
+                      <input type="number" min="0" className="form-control" name="creditDays" value={formData.creditDays} onChange={handleChange} />
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-600">Opening Balance</label>
+                      <input type="number" step="0.01" className="form-control" name="openingBalance" value={formData.openingBalance} onChange={handleChange} />
+                    </div>
+                  </div>
+
                   <div className="d-grid gap-3">
                     <button
                       type="submit"
@@ -291,6 +320,8 @@ function Supplier() {
                             <small>Address</small>
                             <strong>{supplier.address || "No address"}</strong>
                           </div>
+                          <div><small>GSTIN</small><strong>{supplier.gstin || "Unregistered"}</strong></div>
+                          <div><small>Credit Terms</small><strong>{supplier.creditDays || 0} days</strong></div>
                         </div>
                         <div className="supplier-actions">
                           <button

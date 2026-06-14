@@ -16,11 +16,19 @@ public class Medicine {
 
     private String name;
     private String brand;
+    private String sku;
+    private String barcode;
+    private String hsnCode;
     private String batchNo;
+    private String unit = "Strip";
+    private Integer packSize = 1;
     private LocalDate expiryDate;
+    private Double purchasePrice;
+    private Double wholesalePrice;
     private Double mrp;
     private Double gstRate;
     private Integer stockQuantity;
+    private Integer minimumStock = 10;
 
     public Medicine() {
     }
@@ -57,6 +65,13 @@ public class Medicine {
         this.brand = brand;
     }
 
+    public String getSku() { return sku; }
+    public void setSku(String sku) { this.sku = sku; }
+    public String getBarcode() { return barcode; }
+    public void setBarcode(String barcode) { this.barcode = barcode; }
+    public String getHsnCode() { return hsnCode; }
+    public void setHsnCode(String hsnCode) { this.hsnCode = hsnCode; }
+
     public String getBatchNo() {
         return batchNo;
     }
@@ -65,6 +80,11 @@ public class Medicine {
         this.batchNo = batchNo;
     }
 
+    public String getUnit() { return unit; }
+    public void setUnit(String unit) { this.unit = unit; }
+    public Integer getPackSize() { return packSize; }
+    public void setPackSize(Integer packSize) { this.packSize = packSize; }
+
     public LocalDate getExpiryDate() {
         return expiryDate;
     }
@@ -72,6 +92,11 @@ public class Medicine {
     public void setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
     }
+
+    public Double getPurchasePrice() { return purchasePrice; }
+    public void setPurchasePrice(Double purchasePrice) { this.purchasePrice = purchasePrice; }
+    public Double getWholesalePrice() { return wholesalePrice; }
+    public void setWholesalePrice(Double wholesalePrice) { this.wholesalePrice = wholesalePrice; }
 
     public Double getMrp() {
         return mrp;
@@ -96,4 +121,7 @@ public class Medicine {
     public void setStockQuantity(Integer stockQuantity) {
         this.stockQuantity = stockQuantity;
     }
+
+    public Integer getMinimumStock() { return minimumStock; }
+    public void setMinimumStock(Integer minimumStock) { this.minimumStock = minimumStock; }
 }

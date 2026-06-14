@@ -8,8 +8,11 @@ function Purchase() {
   const [formData, setFormData] = useState({
     medicineId: "",
     supplierId: "",
+    invoiceNumber: "",
     quantity: "",
     purchasePrice: "",
+    discountPercent: "0",
+    paymentStatus: "PAID",
     purchaseDate: new Date().toISOString().split("T")[0],
   });
   const [loading, setLoading] = useState(false);
@@ -67,8 +70,11 @@ function Purchase() {
       await api.post("/purchases", {
         medicineId: parseInt(formData.medicineId),
         supplierId: parseInt(formData.supplierId),
+        invoiceNumber: formData.invoiceNumber,
         quantity: parseInt(formData.quantity),
         purchasePrice: parseFloat(formData.purchasePrice),
+        discountPercent: parseFloat(formData.discountPercent || 0),
+        paymentStatus: formData.paymentStatus,
         purchaseDate: formData.purchaseDate,
       });
 
@@ -76,8 +82,11 @@ function Purchase() {
       setFormData({
         medicineId: "",
         supplierId: "",
+        invoiceNumber: "",
         quantity: "",
         purchasePrice: "",
+        discountPercent: "0",
+        paymentStatus: "PAID",
         purchaseDate: new Date().toISOString().split("T")[0],
       });
       loadPurchases();
@@ -187,6 +196,10 @@ function Purchase() {
               <div className="card-body p-4">
                 <form onSubmit={handleSubmit}>
                   <div className="mb-4">
+                    <label className="form-label text-white fw-600">Supplier Invoice Number</label>
+                    <input className="form-control form-control-lg" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="Auto-generated if blank" />
+                  </div>
+                  <div className="mb-4">
                     <label className="form-label text-white fw-600">
                       <i className="bi bi-pill me-2"></i>Medicine
                     </label>
@@ -204,6 +217,21 @@ function Purchase() {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="row g-3 mb-4">
+                    <div className="col-6">
+                      <label className="form-label text-white fw-600">Discount %</label>
+                      <input type="number" min="0" max="100" step="0.01" className="form-control" name="discountPercent" value={formData.discountPercent} onChange={handleChange} />
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label text-white fw-600">Payment</label>
+                      <select className="form-select" name="paymentStatus" value={formData.paymentStatus} onChange={handleChange}>
+                        <option value="PAID">Paid</option>
+                        <option value="PARTIAL">Partial</option>
+                        <option value="CREDIT">Credit</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="mb-4">
@@ -307,14 +335,15 @@ function Purchase() {
                 ) : (
                   <div className="record-card-grid">
                     {purchases.map((purchase) => {
-                      const total =
+                      const gross =
                         Number(purchase.quantity || 0) *
                         Number(purchase.purchasePrice || 0);
+                      const total = gross * (1 - Number(purchase.discountPercent || 0) / 100);
 
                       return (
                         <article className="record-card purchase-record-card" key={purchase.id}>
                           <div className="record-card-title">
-                            <span>Purchase #{purchase.id}</span>
+                            <span>{purchase.invoiceNumber || `Purchase #${purchase.id}`}</span>
                             <strong>{getMedicineName(purchase.medicineId)}</strong>
                             <small>{getSupplierName(purchase.supplierId)}</small>
                           </div>
@@ -335,6 +364,7 @@ function Purchase() {
                               <small>Date</small>
                               <strong className="record-date">{purchase.purchaseDate || "-"}</strong>
                             </div>
+                            <div><small>Payment</small><strong>{purchase.paymentStatus || "PAID"}</strong></div>
                           </div>
                           <div className="record-card-actions">
                             <button

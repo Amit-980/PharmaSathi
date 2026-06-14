@@ -16,8 +16,11 @@ public class Purchase {
 
     private Long medicineId;
     private Long supplierId;
+    private String invoiceNumber;
     private Integer quantity;
     private Double purchasePrice;
+    private Double discountPercent = 0.0;
+    private String paymentStatus = "PAID";
     private LocalDate purchaseDate;
 
     public Purchase() {
@@ -55,6 +58,9 @@ public class Purchase {
         this.supplierId = supplierId;
     }
 
+    public String getInvoiceNumber() { return invoiceNumber; }
+    public void setInvoiceNumber(String invoiceNumber) { this.invoiceNumber = invoiceNumber; }
+
     public Integer getQuantity() {
         return quantity;
     }
@@ -70,6 +76,11 @@ public class Purchase {
     public void setPurchasePrice(Double purchasePrice) {
         this.purchasePrice = purchasePrice;
     }
+
+    public Double getDiscountPercent() { return discountPercent; }
+    public void setDiscountPercent(Double discountPercent) { this.discountPercent = discountPercent; }
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
 
     public LocalDate getPurchaseDate() {
         return purchaseDate;

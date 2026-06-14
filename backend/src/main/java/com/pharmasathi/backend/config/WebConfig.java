@@ -1,6 +1,7 @@
 package com.pharmasathi.backend.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,19 +10,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final ShopAccessInterceptor shopAccessInterceptor;
+    private final String[] allowedOrigins;
 
-    public WebConfig(ShopAccessInterceptor shopAccessInterceptor) {
+    public WebConfig(
+            ShopAccessInterceptor shopAccessInterceptor,
+            @Value("${pharmasathi.allowed-origins:http://localhost:*,http://127.0.0.1:*}") String allowedOrigins) {
         this.shopAccessInterceptor = shopAccessInterceptor;
+        this.allowedOrigins = allowedOrigins.split("\\s*,\\s*");
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/**")
-                .allowedOriginPatterns(
-                        "http://localhost:*",
-                        "http://127.0.0.1:*"
-                )
+                .allowedOriginPatterns(allowedOrigins)
                 .allowedMethods("*")
                 .allowedHeaders("*");
     }

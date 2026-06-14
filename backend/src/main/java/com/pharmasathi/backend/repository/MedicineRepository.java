@@ -9,4 +9,6 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
     List<Medicine> findAllByShopIdOrderByIdDesc(Long shopId);
     Optional<Medicine> findByIdAndShopId(Long id, Long shopId);
     long countByShopId(Long shopId);
+    boolean existsByShopIdAndSkuIgnoreCase(Long shopId, String sku);
+    boolean existsByShopIdAndSkuIgnoreCaseAndIdNot(Long shopId, String sku, Long id);
 }

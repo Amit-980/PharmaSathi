@@ -32,7 +32,7 @@ public class OwnerController {
             SupplierRepository suppliers,
             PurchaseRepository purchases,
             SaleRepository sales,
-            @Value("${pharmasathi.owner-key:pharmasathi-owner-local}") String ownerKey) {
+            @Value("${pharmasathi.owner-key:}") String ownerKey) {
         this.accounts = accounts;
         this.medicines = medicines;
         this.suppliers = suppliers;
@@ -43,7 +43,7 @@ public class OwnerController {
 
     @GetMapping("/backup")
     public ResponseEntity<?> backup(@RequestHeader("X-Owner-Key") String key) {
-        if (!ownerKey.equals(key)) return unauthorized();
+        if (!authorized(key)) return unauthorized();
         return ResponseEntity.ok(Map.of(
                 "createdAt", java.time.LocalDateTime.now().toString(),
                 "customers", accounts.findAll().stream().map(this::customerView).toList(),
@@ -56,7 +56,7 @@ public class OwnerController {
 
     @GetMapping("/customers")
     public ResponseEntity<?> customers(@RequestHeader("X-Owner-Key") String key) {
-        if (!ownerKey.equals(key)) return unauthorized();
+        if (!authorized(key)) return unauthorized();
         List<Map<String, Object>> result = accounts.findAll().stream()
                 .map(this::customerView)
                 .toList();
@@ -68,7 +68,7 @@ public class OwnerController {
             @RequestHeader("X-Owner-Key") String key,
             @PathVariable Long id,
             @RequestBody OwnerAccountUpdateRequest request) {
-        if (!ownerKey.equals(key)) return unauthorized();
+        if (!authorized(key)) return unauthorized();
         ShopAccount account = accounts.findById(id).orElse(null);
         if (account == null) {
             return ResponseEntity.notFound().build();
@@ -88,7 +88,7 @@ public class OwnerController {
             @RequestHeader("X-Owner-Key") String key,
             @PathVariable Long id,
             @RequestParam(defaultValue = "30") int days) {
-        if (!ownerKey.equals(key)) return unauthorized();
+        if (!authorized(key)) return unauthorized();
         ShopAccount account = accounts.findById(id).orElse(null);
         if (account == null) return ResponseEntity.notFound().build();
         LocalDate base = account.getSubscriptionEndDate() != null
@@ -116,6 +116,11 @@ public class OwnerController {
     }
 
     private ResponseEntity<Map<String, String>> unauthorized() {
-        return ResponseEntity.status(401).body(Map.of("message", "Invalid owner key"));
+        String message = ownerKey.isBlank() ? "Owner console is disabled" : "Invalid owner key";
+        return ResponseEntity.status(401).body(Map.of("message", message));
+    }
+
+    private boolean authorized(String key) {
+        return !ownerKey.isBlank() && ownerKey.equals(key);
     }
 }
