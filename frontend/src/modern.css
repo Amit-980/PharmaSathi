@@ -945,3 +945,78 @@
     height: 46px;
   }
 }
+.login-role-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 18px 0 22px;
+  padding: 5px;
+  border: 1px solid #dce5f2;
+  border-radius: 13px;
+  background: #f3f6fa;
+}
+
+.login-role-switch button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #637086;
+  font-weight: 800;
+}
+
+.login-role-switch button.active {
+  background: #fff;
+  color: #245fae;
+  box-shadow: 0 4px 12px rgba(33, 66, 111, 0.12);
+}
+
+.login-authority-note {
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: #f5f7fa;
+  color: #677489;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.owner-back-button {
+  padding: 10px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 800;
+}
+.owner-form-help {
+  margin: 10px 0 15px;
+  color: #68768a;
+  font-size: 0.82rem;
+}
+
+.owner-create-form label.field-invalid input {
+  border-color: #d93025;
+  background: #fff8f7;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.08);
+}
+
+.owner-create-form .field-error {
+  color: #b42318;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+.owner-form-success {
+  margin: 2px 0 14px;
+  padding: 11px 13px;
+  border: 1px solid #b7e3c5;
+  border-radius: 10px;
+  background: #effbf3;
+  color: #176b3a;
+  font-size: 0.82rem;
+  font-weight: 800;
+}

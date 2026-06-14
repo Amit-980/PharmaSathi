@@ -1,12 +1,14 @@
 import { useState } from "react";
 import api from "./api";
 
-export default function OwnerPanel() {
+export default function OwnerPanel({ onBack }) {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [adminToken, setAdminToken] = useState("");
   const [customers, setCustomers] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [customerErrors, setCustomerErrors] = useState({});
+  const [customerSuccess, setCustomerSuccess] = useState("");
   const [newCustomer, setNewCustomer] = useState({
     shopName: "", ownerName: "", phone: "", email: "", address: "",
     gstin: "", drugLicense: "", plan: "Business", username: "", password: "",
@@ -75,16 +77,39 @@ export default function OwnerPanel() {
   const createCustomer = async (event) => {
     event.preventDefault();
     setError("");
+    setCustomerSuccess("");
+    const validationErrors = validateCustomer(newCustomer);
+    if (Object.keys(validationErrors).length) {
+      setCustomerErrors(validationErrors);
+      return;
+    }
+    setCustomerErrors({});
     try {
       await api.post("/admin/customers", newCustomer, { headers });
       setNewCustomer({
         shopName: "", ownerName: "", phone: "", email: "", address: "",
         gstin: "", drugLicense: "", plan: "Business", username: "", password: "",
       });
+      setCustomerSuccess("Pharmacy account created. Customer can now use the Pharmacy Login.");
       await loadCustomers();
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Customer account create nahi hua");
+      const message = requestError.response?.data?.message || "Customer account create nahi hua";
+      if (message.toLowerCase().includes("username")) {
+        setCustomerErrors({ username: "This username is already in use. Choose another username." });
+      } else {
+        setError(message);
+      }
     }
+  };
+
+  const updateNewCustomer = (name, value) => {
+    setNewCustomer((current) => ({ ...current, [name]: value }));
+    setCustomerErrors((current) => {
+      if (!current[name]) return current;
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
   };
 
   return (
@@ -94,7 +119,9 @@ export default function OwnerPanel() {
           <p>PharmaSathi Platform Administration</p>
           <h1>Customers and subscriptions</h1>
         </div>
-        <a href={window.location.pathname}>Back to app</a>
+        <button className="owner-back-button" type="button" onClick={onBack}>
+          Pharmacy Login
+        </button>
       </header>
 
       {!adminToken ? <form className="owner-access" onSubmit={login}>
@@ -139,19 +166,33 @@ export default function OwnerPanel() {
           <div className="owner-customer-title">
             <div><small>Platform admin only</small><h2>Create pharmacy customer</h2></div>
           </div>
+          <p className="owner-form-help">Fill the required details. Any problem will appear directly below the related field.</p>
           <div className="owner-customer-meta">
             {[
-              ["shopName", "Pharmacy Name", "text"],
-              ["ownerName", "Owner Name", "text"],
-              ["phone", "Phone", "tel"],
-              ["email", "Email", "email"],
-              ["username", "Login Username", "text"],
-              ["password", "Temporary Password", "password"],
-            ].map(([name, label, type]) => (
-              <label key={name}><span>{label}</span><input type={type} value={newCustomer[name]} onChange={(event) => setNewCustomer((value) => ({ ...value, [name]: event.target.value }))} required={name !== "email"} /></label>
+              ["shopName", "Pharmacy Name", "text", "Example: Global Pharma"],
+              ["ownerName", "Owner Name", "text", "Full name of pharmacy owner"],
+              ["phone", "Phone", "tel", "Exactly 10 digits"],
+              ["email", "Email (Optional)", "email", "Example: owner@pharmacy.com"],
+              ["username", "Login Username", "text", "Minimum 4 letters or numbers"],
+              ["password", "Temporary Password", "password", "Minimum 8 characters"],
+            ].map(([name, label, type, placeholder]) => (
+              <label className={customerErrors[name] ? "field-invalid" : ""} key={name}>
+                <span>{label}</span>
+                <input
+                  type={type}
+                  value={newCustomer[name]}
+                  onChange={(event) => updateNewCustomer(name, event.target.value)}
+                  placeholder={placeholder}
+                  inputMode={name === "phone" ? "numeric" : undefined}
+                  maxLength={name === "phone" ? 10 : undefined}
+                  aria-invalid={Boolean(customerErrors[name])}
+                />
+                {customerErrors[name] && <small className="field-error">{customerErrors[name]}</small>}
+              </label>
             ))}
-            <label><span>Plan</span><select value={newCustomer.plan} onChange={(event) => setNewCustomer((value) => ({ ...value, plan: event.target.value }))}><option>Starter</option><option>Business</option><option>Pro</option></select></label>
+            <label><span>Plan</span><select value={newCustomer.plan} onChange={(event) => updateNewCustomer("plan", event.target.value)}><option>Starter</option><option>Business</option><option>Pro</option></select></label>
           </div>
+          {customerSuccess && <div className="owner-form-success">{customerSuccess}</div>}
           <div className="owner-customer-actions"><button type="submit">Create Customer Account</button></div>
         </form>
       )}
@@ -200,4 +241,25 @@ export default function OwnerPanel() {
       </section>
     </main>
   );
+}
+
+function validateCustomer(customer) {
+  const errors = {};
+  if (!customer.shopName.trim()) errors.shopName = "Enter the pharmacy name.";
+  if (!customer.ownerName.trim()) errors.ownerName = "Enter the pharmacy owner's name.";
+  if (!/^\d{10}$/.test(customer.phone.trim())) {
+    errors.phone = "Enter a valid 10-digit mobile number.";
+  }
+  if (customer.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email.trim())) {
+    errors.email = "Enter a valid email address, or leave it blank.";
+  }
+  if (customer.username.trim().length < 4) {
+    errors.username = "Username must contain at least 4 characters.";
+  } else if (!/^[a-zA-Z0-9._-]+$/.test(customer.username.trim())) {
+    errors.username = "Use only letters, numbers, dot, underscore or hyphen.";
+  }
+  if (customer.password.length < 8) {
+    errors.password = "Password must contain at least 8 characters.";
+  }
+  return errors;
 }

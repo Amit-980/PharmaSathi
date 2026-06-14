@@ -41,12 +41,12 @@ const readDemoAccount = () => {
 };
 
 function App() {
-  const ownerMode = new URLSearchParams(window.location.search).get("admin") === "1";
   const [demoAccount, setDemoAccount] = useState(() =>
     isDemoMode ? readDemoAccount() : null
   );
+  const [loginMode, setLoginMode] = useState("user");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [setupLoading, setSetupLoading] = useState(!isDemoMode && !ownerMode);
+  const [setupLoading, setSetupLoading] = useState(!isDemoMode);
   const [isRegistered, setIsRegistered] = useState(
     isDemoMode ? Boolean(demoAccount) : false
   );
@@ -85,7 +85,7 @@ function App() {
     : trialDays;
 
   useEffect(() => {
-    if (isDemoMode || ownerMode) return;
+    if (isDemoMode) return;
 
     api.get("/setup/status")
       .then((response) => {
@@ -93,7 +93,7 @@ function App() {
       })
       .catch(() => setLoginError("Application start nahi ho paayi. Please restart PharmaSathi."))
       .finally(() => setSetupLoading(false));
-  }, [ownerMode]);
+  }, []);
 
   useEffect(() => {
     if (isDemoMode) return;
@@ -236,8 +236,8 @@ function App() {
   const activeNavItem =
     navItems.find((item) => item.id === currentPage) || navItems[0];
 
-  if (ownerMode) {
-    return <OwnerPanel />;
+  if (loginMode === "admin" && !isDemoMode) {
+    return <OwnerPanel onBack={() => setLoginMode("user")} />;
   }
 
   if (setupLoading) {
@@ -251,7 +251,7 @@ function App() {
     );
   }
 
-  if (!isRegistered) {
+  if (isDemoMode && !isRegistered) {
     const registrationSteps = [
       { number: 1, label: "Pharmacy" },
       { number: 2, label: "Plan" },
@@ -444,6 +444,19 @@ function App() {
             <img src={bholenathImage} alt="Mahadev" />
           </div>
           <h1 className="login-title">PharmaSathi</h1>
+          {!isDemoMode && (
+            <div className="login-role-switch" role="tablist" aria-label="Login type">
+              <button className="active" type="button">
+                Pharmacy Login
+              </button>
+              <button type="button" onClick={() => {
+                setLoginError("");
+                setLoginMode("admin");
+              }}>
+                Platform Admin
+              </button>
+            </div>
+          )}
 
           {loginError && (
             <div className="alert alert-danger py-2 mb-3" role="alert">
@@ -494,18 +507,9 @@ function App() {
               Login
             </button>
             {!isDemoMode && (
-              <button
-                className="demo-login-btn"
-                type="button"
-                onClick={() => {
-                  setRegistrationStep(1);
-                  setIsRegistered(false);
-                  setLoginError("");
-                }}
-              >
-                <i className="bi bi-shop"></i>
-                Register New Pharmacy
-              </button>
+              <div className="login-authority-note">
+                New pharmacy registration is available only to the Platform Admin.
+              </div>
             )}
           </form>
         </section>

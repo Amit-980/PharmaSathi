@@ -41,7 +41,7 @@ public class ShopAccountService {
     }
 
     public ShopAccount register(RegisterShopRequest request) {
-        if (!publicRegistration && repository.count() > 0) {
+        if (!publicRegistration) {
             throw new IllegalStateException("Registration is closed");
         }
         return createAccount(request);
