@@ -179,10 +179,10 @@ function Medicine({ onNavigate }) {
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-capsule"></i> Dawai ki Pehchan Banayein
+            <i className="bi bi-capsule"></i> Medicine Catalog
           </h1>
           <p className="text-white-50 fs-5">Yahan sirf dawa ka naam, batch, expiry aur rate save hota hai</p>
-          <span className="module-chip">{medicines.length} master records</span>
+          <span className="module-chip">{medicines.length} medicines</span>
         </div>
 
         <div className="module-insight-grid">

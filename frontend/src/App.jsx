@@ -226,7 +226,7 @@ function App() {
 
   const navItems = [
     { id: "dashboard", label: "Aaj ka Hisaab", mark: "D", note: "Dukaan ki poori jankari" },
-    { id: "medicine", label: "Dawai aur Stock", mark: "M", note: "Dawai, batch aur bacha stock" },
+    { id: "medicine", label: "Medicine Catalog", mark: "M", note: "Dawai, batch, expiry aur rate" },
     { id: "supplier", label: "Dawai Bechne Wale", mark: "S", note: "Distributor / supplier ki list" },
     { id: "purchase", label: "Maal Kharidna", mark: "P", note: "Aaya hua stock darj karein" },
     { id: "sale", label: "Bill Banayein", mark: "B", note: "Customer ko dawa bechein" },
