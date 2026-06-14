@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: pharmasathi
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pharmasathi-db
+          property: connectionString
+      - key: PHARMASATHI_DB_DRIVER
+        value: org.postgresql.Driver
+      - key: PHARMASATHI_BIND_ADDRESS
+        value: 0.0.0.0
+      - key: PHARMASATHI_ADMIN_USERNAME
+        value: platform-admin
+      - key: PHARMASATHI_ADMIN_PASSWORD
+        sync: false
+      - key: PHARMASATHI_ALLOWED_ORIGINS
+        value: https://*.onrender.com
+      - key: PHARMASATHI_SECURE_COOKIES
+        value: "true"
+      - key: PHARMASATHI_PUBLIC_REGISTRATION
+        value: "false"
+      - key: PHARMASATHI_SESSION_HOURS
+        value: "24"
+
+databases:
+  - name: pharmasathi-db
+    plan: free
+    region: singapore
+    databaseName: pharmasathi
+    user: pharmasathi

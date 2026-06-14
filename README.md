@@ -72,6 +72,14 @@ PHARMASATHI_PUBLIC_REGISTRATION=false
 Generate a public domain for the application service. Railway supplies `PORT`
 automatically and checks `/api/health` using `railway.json`.
 
+### Render free preview
+
+The repository includes `render.yaml` for a free Render web service and free
+PostgreSQL database. Create a Blueprint from the repository and provide the
+platform admin password when prompted. Free web services sleep after inactivity,
+and free Render PostgreSQL databases expire after 30 days, so this setup is for
+testing and customer demonstrations only.
+
 Existing SHA-256 user passwords are upgraded to PBKDF2 automatically after a
 successful login. New registrations require at least eight password characters.
 
