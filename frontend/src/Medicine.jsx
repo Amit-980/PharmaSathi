@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "./api";
+import ShopFlow from "./ShopFlow";
 
-function Medicine() {
+function Medicine({ onNavigate }) {
   const [medicines, setMedicines] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -174,12 +175,13 @@ function Medicine() {
   return (
     <div className="medicine-container module-page medicine-page min-vh-100 py-5">
       <div className="container-fluid">
+        <ShopFlow active="medicine" onNavigate={onNavigate} />
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-capsule"></i> Medicine Master
+            <i className="bi bi-capsule"></i> Dawai ki Pehchan Banayein
           </h1>
-          <p className="text-white-50 fs-5">Create medicine records with batch, expiry, MRP, GST and opening stock</p>
+          <p className="text-white-50 fs-5">Yahan sirf dawa ka naam, batch, expiry aur rate save hota hai</p>
           <span className="module-chip">{medicines.length} master records</span>
         </div>
 
@@ -192,7 +194,7 @@ function Medicine() {
 
         <div className="module-purpose-note">
           <i className="bi bi-info-circle"></i>
-          <div><strong>Step 1: Medicine Master</strong><span>नई दवा पहली बार यहीं बनाएं। बाद की supplier खरीद Stock Purchase में दर्ज करें।</span></div>
+          <div><strong>Is screen ka kaam</strong><span>Nayi dawa ko list mein banayein. Supplier se aaya maal yahan dobara na jodein; uske liye Purchase screen use karein.</span></div>
         </div>
 
         {successMessage && (
@@ -226,7 +228,7 @@ function Medicine() {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  {editingId ? "Edit Medicine Master" : "Create Medicine Master"}
+                  {editingId ? "Dawai ki Detail Badlein" : "Nayi Dawai List Mein Jodein"}
                 </h5>
               </div>
               <div className="card-body p-4">

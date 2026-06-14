@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "./api";
+import ShopFlow from "./ShopFlow";
 
-function Supplier() {
+function Supplier({ onNavigate }) {
   const [suppliers, setSuppliers] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -118,6 +119,7 @@ function Supplier() {
   return (
     <div className="supplier-container module-page supplier-page py-5">
       <div className="container-lg">
+        <ShopFlow active="supplier" onNavigate={onNavigate} />
         <div className="module-header mb-5">
           <h1 className="display-5 fw-bold text-white mb-2">Dawai Bechne Wale (Suppliers)</h1>
           <p className="text-white-50">Supplier woh distributor ya wholesaler hai jisse aap apni dukaan ke liye dawa kharidte hain</p>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "./api";
+import ShopFlow from "./ShopFlow";
 
-function Purchase() {
+function Purchase({ onNavigate }) {
   const [medicines, setMedicines] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [purchases, setPurchases] = useState([]);
@@ -139,12 +140,13 @@ function Purchase() {
   return (
     <div className="purchase-container module-page purchase-page min-vh-100 py-5">
       <div className="container-fluid">
+        <ShopFlow active="purchase" onNavigate={onNavigate} />
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-box-arrow-in-down"></i> Stock Purchase Entry
+            <i className="bi bi-box-arrow-in-down"></i> Supplier se Aaya Maal
           </h1>
-          <p className="text-white-50 fs-5">Record supplier invoices and add purchased quantity to existing medicine stock</p>
+          <p className="text-white-50 fs-5">Jo dawa kharidkar dukaan mein aayi hai, uski quantity yahan darj karein</p>
           <span className="module-chip">{purchases.length} inward entries</span>
         </div>
 
@@ -156,7 +158,7 @@ function Purchase() {
 
         <div className="module-purpose-note">
           <i className="bi bi-box-seam"></i>
-          <div><strong>Step 2: Stock Purchase</strong><span>Medicine Master में बनी दवा चुनें, supplier invoice दर्ज करें और stock अपने-आप बढ़ाएं।</span></div>
+          <div><strong>Is screen ka kaam: stock badhana (+)</strong><span>Pehle se bani dawa aur supplier chunein. Quantity save karte hi available stock apne-aap badhega.</span></div>
         </div>
 
         {successMessage && (
@@ -190,7 +192,7 @@ function Purchase() {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  Record Supplier Purchase
+                  Aaya Hua Maal Stock Mein Jodein
                 </h5>
               </div>
               <div className="card-body p-4">

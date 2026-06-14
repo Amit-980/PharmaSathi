@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import api from "./api";
+import ShopFlow from "./ShopFlow";
 
 const emptySaleForm = {
   customerName: "",
@@ -15,7 +16,7 @@ const emptySaleForm = {
   saleDate: new Date().toISOString().split("T")[0],
 };
 
-function Sale() {
+function Sale({ onNavigate }) {
   const [medicines, setMedicines] = useState([]);
   const [sales, setSales] = useState([]);
   const [formData, setFormData] = useState(emptySaleForm);
@@ -262,13 +263,19 @@ function Sale() {
   return (
     <div className="sale-container module-page sale-page min-vh-100 py-5">
       <div className="container-fluid">
+        <ShopFlow active="sale" onNavigate={onNavigate} />
         {/* Header */}
         <div className="module-header mb-5">
           <h1 className="display-4 fw-bold text-white mb-2">
-            <i className="bi bi-cart-check"></i> Sales Record
+            <i className="bi bi-cart-check"></i> Customer ka Bill Banayein
           </h1>
-          <p className="text-white-50 fs-5">Record medicine sales with real-time stock management</p>
+          <p className="text-white-50 fs-5">Customer, dawa, quantity aur rate chunein; bill banega aur stock ghatega</p>
           <span className="module-chip">{sales.length} sales</span>
+        </div>
+
+        <div className="module-purpose-note">
+          <i className="bi bi-receipt"></i>
+          <div><strong>Is screen ka kaam: stock ghatana (-)</strong><span>Customer ko dawa dete waqt yahan bill banayein. Sale save hote hi utni quantity stock se kam ho jayegi.</span></div>
         </div>
 
         <div className="module-insight-grid module-insight-grid-three">
@@ -308,7 +315,7 @@ function Sale() {
               <div className="card-header bg-transparent border-0 p-4">
                 <h5 className="text-white mb-0">
                   <i className="bi bi-plus-circle me-2"></i>
-                  Record New Sale
+                  Naya Customer Bill
                 </h5>
               </div>
               <div className="card-body p-4">
@@ -439,7 +446,7 @@ function Sale() {
                       disabled={loading}
                     >
                       <i className="bi bi-check-lg me-2"></i>
-                      {loading ? "Recording..." : "Record Sale"}
+                      {loading ? "Bill ban raha hai..." : "Bill Banayein aur Stock Ghatayein"}
                     </button>
                   </div>
                 </form>

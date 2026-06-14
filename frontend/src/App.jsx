@@ -207,13 +207,13 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case "medicine":
-        return <Medicine />;
+        return <Medicine onNavigate={setCurrentPage} />;
       case "supplier":
-        return <Supplier />;
+        return <Supplier onNavigate={setCurrentPage} />;
       case "purchase":
-        return <Purchase />;
+        return <Purchase onNavigate={setCurrentPage} />;
       case "sale":
-        return <Sale />;
+        return <Sale onNavigate={setCurrentPage} />;
       case "report":
         return <Report />;
       case "plans":
