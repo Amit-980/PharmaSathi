@@ -51,6 +51,27 @@ Pharmacy users cannot access customer creation, subscription, backup, or admin
 APIs. Authentication sessions are stored as SHA-256 token hashes and expire
 after `PHARMASATHI_SESSION_HOURS`.
 
+### Railway
+
+Create a Railway project from this GitHub repository and add a PostgreSQL
+service. Configure the application service with:
+
+```text
+PHARMASATHI_DB_URL=jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}
+PHARMASATHI_DB_USERNAME=${{Postgres.PGUSER}}
+PHARMASATHI_DB_PASSWORD=${{Postgres.PGPASSWORD}}
+PHARMASATHI_DB_DRIVER=org.postgresql.Driver
+PHARMASATHI_BIND_ADDRESS=0.0.0.0
+PHARMASATHI_ADMIN_USERNAME=platform-admin
+PHARMASATHI_ADMIN_PASSWORD=<strong-random-password>
+PHARMASATHI_ALLOWED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}
+PHARMASATHI_SECURE_COOKIES=true
+PHARMASATHI_PUBLIC_REGISTRATION=false
+```
+
+Generate a public domain for the application service. Railway supplies `PORT`
+automatically and checks `/api/health` using `railway.json`.
+
 Existing SHA-256 user passwords are upgraded to PBKDF2 automatically after a
 successful login. New registrations require at least eight password characters.
 
