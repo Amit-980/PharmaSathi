@@ -134,6 +134,16 @@ if (!isDemoMode) {
     }
     return config;
   });
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if ([401, 402, 403].includes(error.response?.status)) {
+        sessionStorage.removeItem("pharmasathi-auth-token");
+        window.dispatchEvent(new Event("pharmasathi-session-ended"));
+      }
+      return Promise.reject(error);
+    }
+  );
 }
 
 export { isDemoMode };

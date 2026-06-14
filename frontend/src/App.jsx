@@ -41,7 +41,7 @@ const readDemoAccount = () => {
 };
 
 function App() {
-  const ownerMode = new URLSearchParams(window.location.search).get("owner") === "1";
+  const ownerMode = new URLSearchParams(window.location.search).get("admin") === "1";
   const [demoAccount, setDemoAccount] = useState(() =>
     isDemoMode ? readDemoAccount() : null
   );
@@ -90,17 +90,20 @@ function App() {
     api.get("/setup/status")
       .then((response) => {
         setIsRegistered(Boolean(response.data.registered));
-        if (response.data.registered) {
-          setShopInfo({
-            shopName: response.data.shopName,
-            ownerName: response.data.ownerName,
-            plan: response.data.plan || "Business",
-          });
-        }
       })
       .catch(() => setLoginError("Application start nahi ho paayi. Please restart PharmaSathi."))
       .finally(() => setSetupLoading(false));
   }, [ownerMode]);
+
+  useEffect(() => {
+    if (isDemoMode) return;
+    const endSession = () => {
+      setIsLoggedIn(false);
+      setCurrentPage("dashboard");
+    };
+    window.addEventListener("pharmasathi-session-ended", endSession);
+    return () => window.removeEventListener("pharmasathi-session-ended", endSession);
+  }, []);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -172,11 +175,11 @@ function App() {
     }
 
     try {
-      const response = await api.post("/setup/register", registrationData);
+      await api.post("/setup/register", registrationData);
       setShopInfo({
-        shopName: response.data.shopName,
-        ownerName: response.data.ownerName,
-        plan: response.data.plan || registrationData.plan,
+        shopName: registrationData.shopName,
+        ownerName: registrationData.ownerName,
+        plan: registrationData.plan,
       });
       setLoginData({
         username: registrationData.username,

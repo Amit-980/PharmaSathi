@@ -10,12 +10,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final ShopAccessInterceptor shopAccessInterceptor;
+    private final PrivacyHeadersInterceptor privacyHeadersInterceptor;
+    private final AdminAccessInterceptor adminAccessInterceptor;
     private final String[] allowedOrigins;
 
     public WebConfig(
             ShopAccessInterceptor shopAccessInterceptor,
+            PrivacyHeadersInterceptor privacyHeadersInterceptor,
+            AdminAccessInterceptor adminAccessInterceptor,
             @Value("${pharmasathi.allowed-origins:http://localhost:*,http://127.0.0.1:*}") String allowedOrigins) {
         this.shopAccessInterceptor = shopAccessInterceptor;
+        this.privacyHeadersInterceptor = privacyHeadersInterceptor;
+        this.adminAccessInterceptor = adminAccessInterceptor;
         this.allowedOrigins = allowedOrigins.split("\\s*,\\s*");
     }
 
@@ -30,6 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(privacyHeadersInterceptor)
+                .addPathPatterns("/api/**");
         registry.addInterceptor(shopAccessInterceptor)
                 .addPathPatterns(
                         "/api/dashboard",
@@ -38,5 +46,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/purchases/**",
                         "/api/sales/**"
                 );
+        registry.addInterceptor(adminAccessInterceptor)
+                .addPathPatterns("/api/admin/**")
+                .excludePathPatterns("/api/admin/login");
     }
 }

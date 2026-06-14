@@ -45,8 +45,10 @@ curl http://127.0.0.1:8765/api/health
 ```
 
 Put the application behind an HTTPS reverse proxy. Do not expose PostgreSQL
-publicly. The owner console remains disabled until `PHARMASATHI_OWNER_KEY` is
-set. Authentication sessions are stored as SHA-256 token hashes and expire
+publicly. The platform admin console at `?admin=1` remains disabled until
+`PHARMASATHI_ADMIN_USERNAME` and `PHARMASATHI_ADMIN_PASSWORD` are set.
+Pharmacy users cannot access customer creation, subscription, backup, or admin
+APIs. Authentication sessions are stored as SHA-256 token hashes and expire
 after `PHARMASATHI_SESSION_HOURS`.
 
 Existing SHA-256 user passwords are upgraded to PBKDF2 automatically after a
@@ -66,7 +68,7 @@ paying customers.
 
 ## Launch checklist
 
-- Configure a real domain, HTTPS, owner key and restricted CORS origin.
+- Configure a real domain, HTTPS, platform admin credentials and restricted CORS origin.
 - Use PostgreSQL and automated daily off-site backups.
 - Verify GST invoice wording and reports with a practising CA.
 - Publish privacy, terms, refund, support and data-deletion policies.

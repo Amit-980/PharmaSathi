@@ -1,13 +1,16 @@
 package com.pharmasathi.backend.controller;
 
 import com.pharmasathi.backend.dto.OwnerAccountUpdateRequest;
+import com.pharmasathi.backend.dto.AdminLoginRequest;
+import com.pharmasathi.backend.dto.RegisterShopRequest;
+import com.pharmasathi.backend.service.AdminAuthService;
+import com.pharmasathi.backend.service.ShopAccountService;
 import com.pharmasathi.backend.entity.ShopAccount;
 import com.pharmasathi.backend.repository.ShopAccountRepository;
 import com.pharmasathi.backend.repository.MedicineRepository;
 import com.pharmasathi.backend.repository.PurchaseRepository;
 import com.pharmasathi.backend.repository.SaleRepository;
 import com.pharmasathi.backend.repository.SupplierRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/owner")
+@RequestMapping("/api/admin")
 public class OwnerController {
 
     private final ShopAccountRepository accounts;
@@ -24,7 +27,8 @@ public class OwnerController {
     private final SupplierRepository suppliers;
     private final PurchaseRepository purchases;
     private final SaleRepository sales;
-    private final String ownerKey;
+    private final AdminAuthService adminAuth;
+    private final ShopAccountService shopAccountService;
 
     public OwnerController(
             ShopAccountRepository accounts,
@@ -32,18 +36,34 @@ public class OwnerController {
             SupplierRepository suppliers,
             PurchaseRepository purchases,
             SaleRepository sales,
-            @Value("${pharmasathi.owner-key:}") String ownerKey) {
+            AdminAuthService adminAuth,
+            ShopAccountService shopAccountService) {
         this.accounts = accounts;
         this.medicines = medicines;
         this.suppliers = suppliers;
         this.purchases = purchases;
         this.sales = sales;
-        this.ownerKey = ownerKey;
+        this.adminAuth = adminAuth;
+        this.shopAccountService = shopAccountService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AdminLoginRequest request) {
+        try {
+            return ResponseEntity.ok(Map.of("token", adminAuth.login(request)));
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            return ResponseEntity.status(401).body(Map.of("message", exception.getMessage()));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        adminAuth.logout(authorization);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/backup")
-    public ResponseEntity<?> backup(@RequestHeader("X-Owner-Key") String key) {
-        if (!authorized(key)) return unauthorized();
+    public ResponseEntity<?> backup() {
         return ResponseEntity.ok(Map.of(
                 "createdAt", java.time.LocalDateTime.now().toString(),
                 "customers", accounts.findAll().stream().map(this::customerView).toList(),
@@ -55,20 +75,26 @@ public class OwnerController {
     }
 
     @GetMapping("/customers")
-    public ResponseEntity<?> customers(@RequestHeader("X-Owner-Key") String key) {
-        if (!authorized(key)) return unauthorized();
+    public ResponseEntity<?> customers() {
         List<Map<String, Object>> result = accounts.findAll().stream()
                 .map(this::customerView)
                 .toList();
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/customers")
+    public ResponseEntity<?> createCustomer(@RequestBody RegisterShopRequest request) {
+        try {
+            return ResponseEntity.ok(customerView(shopAccountService.registerByAdmin(request)));
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+        }
+    }
+
     @PatchMapping("/customers/{id}")
     public ResponseEntity<?> update(
-            @RequestHeader("X-Owner-Key") String key,
             @PathVariable Long id,
             @RequestBody OwnerAccountUpdateRequest request) {
-        if (!authorized(key)) return unauthorized();
         ShopAccount account = accounts.findById(id).orElse(null);
         if (account == null) {
             return ResponseEntity.notFound().build();
@@ -85,10 +111,8 @@ public class OwnerController {
 
     @PostMapping("/customers/{id}/renew")
     public ResponseEntity<?> renew(
-            @RequestHeader("X-Owner-Key") String key,
             @PathVariable Long id,
             @RequestParam(defaultValue = "30") int days) {
-        if (!authorized(key)) return unauthorized();
         ShopAccount account = accounts.findById(id).orElse(null);
         if (account == null) return ResponseEntity.notFound().build();
         LocalDate base = account.getSubscriptionEndDate() != null
@@ -115,12 +139,4 @@ public class OwnerController {
         );
     }
 
-    private ResponseEntity<Map<String, String>> unauthorized() {
-        String message = ownerKey.isBlank() ? "Owner console is disabled" : "Invalid owner key";
-        return ResponseEntity.status(401).body(Map.of("message", message));
-    }
-
-    private boolean authorized(String key) {
-        return !ownerKey.isBlank() && ownerKey.equals(key);
-    }
 }

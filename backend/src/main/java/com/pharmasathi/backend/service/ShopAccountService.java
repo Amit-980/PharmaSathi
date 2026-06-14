@@ -4,6 +4,7 @@ import com.pharmasathi.backend.dto.LoginRequest;
 import com.pharmasathi.backend.dto.RegisterShopRequest;
 import com.pharmasathi.backend.entity.ShopAccount;
 import com.pharmasathi.backend.repository.ShopAccountRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -23,27 +24,34 @@ public class ShopAccountService {
 
     private final ShopAccountRepository repository;
     private final AuthSessionService sessions;
+    private final boolean publicRegistration;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public ShopAccountService(ShopAccountRepository repository, AuthSessionService sessions) {
+    public ShopAccountService(
+            ShopAccountRepository repository,
+            AuthSessionService sessions,
+            @Value("${pharmasathi.public-registration:false}") boolean publicRegistration) {
         this.repository = repository;
         this.sessions = sessions;
+        this.publicRegistration = publicRegistration;
     }
 
     public Map<String, Object> status() {
-        return repository.findFirstByOrderByIdAsc()
-                .<Map<String, Object>>map(account -> Map.of(
-                        "registered", true,
-                        "shopName", account.getShopName(),
-                        "ownerName", account.getOwnerName(),
-                        "plan", planOrDefault(account),
-                        "enabled", account.isEnabled(),
-                        "subscriptionEndDate", dateOrEmpty(account.getSubscriptionEndDate())
-                ))
-                .orElseGet(() -> Map.of("registered", false));
+        return Map.of("registered", repository.count() > 0);
     }
 
     public ShopAccount register(RegisterShopRequest request) {
+        if (!publicRegistration && repository.count() > 0) {
+            throw new IllegalStateException("Registration is closed");
+        }
+        return createAccount(request);
+    }
+
+    public ShopAccount registerByAdmin(RegisterShopRequest request) {
+        return createAccount(request);
+    }
+
+    private ShopAccount createAccount(RegisterShopRequest request) {
         validate(request);
         String username = request.username().trim().toLowerCase();
         if (repository.existsByUsername(username)) {

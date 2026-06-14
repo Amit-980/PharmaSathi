@@ -2,7 +2,6 @@ package com.pharmasathi.backend.controller;
 
 import com.pharmasathi.backend.dto.LoginRequest;
 import com.pharmasathi.backend.dto.RegisterShopRequest;
-import com.pharmasathi.backend.entity.ShopAccount;
 import com.pharmasathi.backend.service.ShopAccountService;
 import com.pharmasathi.backend.service.AuthSessionService;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +29,9 @@ public class SetupController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterShopRequest request) {
         try {
-            ShopAccount account = service.register(request);
+            service.register(request);
             return ResponseEntity.ok(Map.of(
-                    "registered", true,
-                    "shopName", account.getShopName(),
-                    "ownerName", account.getOwnerName(),
-                    "plan", account.getSubscriptionPlan()
+                    "registered", true
             ));
         } catch (IllegalArgumentException | IllegalStateException exception) {
             return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
